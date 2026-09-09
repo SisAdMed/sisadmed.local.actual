@@ -1,0 +1,646 @@
+
+X-Powered-By: PHP/8.2.31
+Content-type: text/html; charset=UTF-8
+
+<br />
+<b>Warning</b>:  Undefined array key "HTTP_HOST" in <b>/home/cpuj4gbphmxn/sisadmed.corp-mmq.com/Config/Config.php</b> on line <b>11</b><br />
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-12 05:00:04', '2', '764.3486', '764.3486', '1', '2026-08-12 05:00:04')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (764.3486 VES) guardada correctamente en la base de datos.
+X-Powered-By: PHP/8.2.31
+Content-type: text/html; charset=UTF-8
+
+<br />
+<b>Warning</b>:  Undefined array key "HTTP_HOST" in <b>/home/cpuj4gbphmxn/sisadmed.corp-mmq.com/Config/Config.php</b> on line <b>11</b><br />
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-13 05:00:03', '2', '766.8603', '766.8603', '1', '2026-08-13 05:00:03')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (766.8603 VES) guardada correctamente en la base de datos.
+X-Powered-By: PHP/8.2.32
+Content-type: text/html; charset=UTF-8
+
+<br />
+<b>Warning</b>:  Undefined array key "HTTP_HOST" in <b>/home/cpuj4gbphmxn/sisadmed.corp-mmq.com/Config/Config.php</b> on line <b>11</b><br />
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-14 05:00:04', '2', '771.0714', '771.0714', '1', '2026-08-14 05:00:04')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (771.0714 VES) guardada correctamente en la base de datos.
+X-Powered-By: PHP/8.2.32
+Content-type: text/html; charset=UTF-8
+
+<br />
+<b>Warning</b>:  Undefined array key "HTTP_HOST" in <b>/home/cpuj4gbphmxn/sisadmed.corp-mmq.com/Config/Config.php</b> on line <b>11</b><br />
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-15 05:00:03', '2', '772.5441', '772.5441', '1', '2026-08-15 05:00:03')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (772.5441 VES) guardada correctamente en la base de datos.
+X-Powered-By: PHP/8.2.32
+Content-type: text/html; charset=UTF-8
+
+<br />
+<b>Warning</b>:  Undefined array key "HTTP_HOST" in <b>/home/cpuj4gbphmxn/sisadmed.corp-mmq.com/Config/Config.php</b> on line <b>11</b><br />
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-16 05:00:04', '2', '772.5441', '772.5441', '1', '2026-08-16 05:00:04')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (772.5441 VES) guardada correctamente en la base de datos.
+X-Powered-By: PHP/8.2.32
+Content-type: text/html; charset=UTF-8
+
+<br />
+<b>Warning</b>:  Undefined array key "HTTP_HOST" in <b>/home/cpuj4gbphmxn/sisadmed.corp-mmq.com/Config/Config.php</b> on line <b>11</b><br />
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-17 05:00:03', '2', '772.5441', '772.5441', '1', '2026-08-17 05:00:03')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (772.5441 VES) guardada correctamente en la base de datos.
+X-Powered-By: PHP/8.2.32
+Content-type: text/html; charset=UTF-8
+
+<br />
+<b>Warning</b>:  Undefined array key "HTTP_HOST" in <b>/home/cpuj4gbphmxn/sisadmed.corp-mmq.com/Config/Config.php</b> on line <b>11</b><br />
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-18 05:00:03', '2', '773.3125', '773.3125', '1', '2026-08-18 05:00:03')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (773.3125 VES) guardada correctamente en la base de datos.
+X-Powered-By: PHP/8.2.32
+Content-type: text/html; charset=UTF-8
+
+<br />
+<b>Warning</b>:  Undefined array key "HTTP_HOST" in <b>/home/cpuj4gbphmxn/sisadmed.corp-mmq.com/Config/Config.php</b> on line <b>11</b><br />
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-19 05:00:03', '2', '775.3356', '775.3356', '1', '2026-08-19 05:00:03')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (775.3356 VES) guardada correctamente en la base de datos.
+X-Powered-By: PHP/8.2.32
+Content-type: text/html; charset=UTF-8
+
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-20 05:00:04', '2', '777.4161', '777.4161', '1', '2026-08-20 05:00:04')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (777.4161 VES) guardada correctamente en la base de datos.
+X-Powered-By: PHP/8.2.32
+Content-type: text/html; charset=UTF-8
+
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-21 05:00:03', '2', '779.9522', '779.9522', '1', '2026-08-21 05:00:03')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (779.9522 VES) guardada correctamente en la base de datos.
+X-Powered-By: PHP/8.2.32
+Content-type: text/html; charset=UTF-8
+
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-22 05:00:03', '2', '784.6633', '784.6633', '1', '2026-08-22 05:00:03')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (784.6633 VES) guardada correctamente en la base de datos.
+X-Powered-By: PHP/8.2.32
+Content-type: text/html; charset=UTF-8
+
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-23 05:00:03', '2', '784.6633', '784.6633', '1', '2026-08-23 05:00:03')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (784.6633 VES) guardada correctamente en la base de datos.
+X-Powered-By: PHP/8.2.32
+Content-type: text/html; charset=UTF-8
+
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-24 05:00:03', '2', '784.6633', '784.6633', '1', '2026-08-24 05:00:03')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (784.6633 VES) guardada correctamente en la base de datos.
+X-Powered-By: PHP/8.2.32
+Content-type: text/html; charset=UTF-8
+
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-25 05:00:03', '2', '785.0693', '785.0693', '1', '2026-08-25 05:00:03')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (785.0693 VES) guardada correctamente en la base de datos.
+X-Powered-By: PHP/8.2.32
+Content-type: text/html; charset=UTF-8
+
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-26 05:00:02', '2', '787.5196', '787.5196', '1', '2026-08-26 05:00:02')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (787.5196 VES) guardada correctamente en la base de datos.
+X-Powered-By: PHP/8.2.32
+Content-type: text/html; charset=UTF-8
+
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-27 05:00:02', '2', '791.3248', '791.3248', '1', '2026-08-27 05:00:02')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (791.3248 VES) guardada correctamente en la base de datos.
+X-Powered-By: PHP/8.2.32
+Content-type: text/html; charset=UTF-8
+
+SQL: [192] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES (:fecha_cambio, :id_moneda, :cambio_compra, :cambio_venta, :create_user, :create_date)
+Sent SQL: [186] INSERT INTO f0012 (fecha_cambio, id_moneda, cambio_compra, cambio_venta, create_user, create_date) VALUES ('2026-08-28 05:00:03', '2', '791.6667', '791.6667', '1', '2026-08-28 05:00:03')
+Params:  6
+Key: Name: [13] :fecha_cambio
+paramno=-1
+name=[13] ":fecha_cambio"
+is_param=1
+param_type=2
+Key: Name: [10] :id_moneda
+paramno=-1
+name=[10] ":id_moneda"
+is_param=1
+param_type=2
+Key: Name: [14] :cambio_compra
+paramno=-1
+name=[14] ":cambio_compra"
+is_param=1
+param_type=2
+Key: Name: [13] :cambio_venta
+paramno=-1
+name=[13] ":cambio_venta"
+is_param=1
+param_type=2
+Key: Name: [12] :create_user
+paramno=-1
+name=[12] ":create_user"
+is_param=1
+param_type=2
+Key: Name: [12] :create_date
+paramno=-1
+name=[12] ":create_date"
+is_param=1
+param_type=2
+<pre></pre>Tasa (791.6667 VES) guardada correctamente en la base de datos.
