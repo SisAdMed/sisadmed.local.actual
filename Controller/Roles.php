@@ -1,46 +1,95 @@
 <?php
-class Roles extends Controller
-{
-    public function __construct()
-    {
+class Roles extends Controller{
+    public function __construct(){
         Auth::noAuth();
         parent::__construct();
-        Permisos::getPermisos(ROLES);
+        Permisos::getPermisos(2);
     }
-    public function index()
-    {
+    public function index(){
         if (empty($_SESSION['permisosMod']['r'])) {
             header('Location:' . base_url . '/Perfil');
-        }
-        $roles = RolesModel::allRols();
-
+        }        
         $this->views->getView($this, "index", [
             'page_name' => "Roles",
-            'function_js' => "Roles.js",
-            'roles' => to_obj($roles)
+            'function_js' => "Roles.js?v=" . SITE_VERSION,         
+            'function_js_mod' => "Main.js?v=" . SITE_VERSION
         ]);
     }
-    public function nuevo()
-    {
+    public function cargar_screen_main(){        
+        if($_SERVER["REQUEST_METHOD"] == "POST"){            
+            $datos_tabla = [];
+            //Crear tokens
+            $r = RolesModel::cargar_screen_main();                        
+            foreach($r as $p){
+                $datos_tabla[] = array_merge($p, [
+                    "token_edit" => encriptar_url(json_encode(['accion' => 'edit', 'id' => $p['id_rol']])),
+                    "token_delete" => encriptar_url(json_encode(['accion' => 'delete', 'id' => $p['id_rol']])),
+                    "token_show" => encriptar_url(json_encode(['accion' => 'show', 'id' => $p['id_rol']])),
+                ]);
+            }                     
+            echo json_encode($datos_tabla, JSON_UNESCAPED_UNICODE);
+        }
+    }   
+    public function nuevo(){
         $this->views->getView($this, "nuevo", [
             'page_name' => "Nuevo rol",
-            'function_js' => "Roles.js"
+            'function_js' => "Roles.js?v=" . SITE_VERSION,         
+            'function_js_mod' => "Main.js?v=" . SITE_VERSION
         ]);
     }
-    public function edit($id)
-    {
+     public function store(){        
+        if($_SERVER['REQUEST_METHOD'] == 'POST'){            
+            $id_rol = intval(limpiar($_POST['id']));            
+            $modu = 'create_user';
+            $modd = 'create_date';
+            if(isset($id_rol) && $id_rol > 0){
+                $modu = 'modify_user';
+                $modd = 'modify_date';
+            }
+            $nombre_rol = limpiar($_POST['nombre_rol']);
+            $status_rol = intval(limpiar($_POST['status_rol'] ?? 1));        
+            $data = [
+                'nombre_rol' => $nombre_rol,
+                'status_rol' => $status_rol,
+                $modu => $_SESSION['id_user'],
+                $modd => getAuditoria(),
+            ];            
+            if(empty($id_rol)){
+                $r = RolesModel::guardar($data, 0);
+            }else{
+                $r = RolesModel::guardar($data, $id_rol );
+            }                
+            echo json_encode($r, JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+    }
+    public function gestion($token = null)  {
+        if (!$token) {
+            return;
+        }
+        $datos = desencriptar_url($token);        
+        switch ($datos['accion']) {
+            case 'edit':
+                $this->edit($datos['id']);
+                break;            
+            default:
+                // Acción no permitida
+                break;
+        }
+    }
+    public function edit(int $id) {
         if (Permisos::read()) {
             $idRol = intval(limpiar($id));
             if ($idRol > 0) {
                 $rol = RolesModel::editRol($idRol);
-                if (empty($rol)) {
-                    Alertas::new('El registro no existe', 'warning');
+                if (empty($rol)) {                    
                     header('Location:' . base_url . '/Roles');
                 }
                 //mostrar registro
                 $this->views->getView($this, "edit", [
                     'page_name' => "Editando el registro " . $rol['nombre_rol'],
-                    'function_js' => "Roles.js",
+                    'function_js' => "Roles.js?v=" . SITE_VERSION,         
+                    'function_js_mod' => "Main.js?v=" . SITE_VERSION,
                     'rol' => to_obj($rol)
                 ]);
             } else {
@@ -51,83 +100,27 @@ class Roles extends Controller
         Alertas::new('No tiene permiso para realizar esta acción', 'warning');
         header('Location:' . base_url . '/Roles');
     }
-    public function store()
-    {
-        if (empty($_POST['id'])) {
-            if (Permisos::create()) {
-                if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                    try {
-                        //validar formulario
-                        $val = new Validations();
-                        $val->name('Nombre del rol')->value(limpiar($_POST['nombre_rol']))->min(5)->required();
-                        $val->name('Estado del rol')->value(limpiar($_POST['selstatus']))->required();
-                        if ($val->isSuccess()) {
-                            //guardar registro
-                            $data = [
-                                'nombre_rol' => limpiar($_POST['nombre_rol']),
-                                'status_rol' => limpiar($_POST['selstatus']),
-                                'create_user' => $_SESSION['id_user']
-                            ];
-                            $id = RolesModel::guardarRol($data);
-                            Alertas::new(sprintf('El rol %s se ha creado exitosamente con el id %s', $data['nombre_rol'], $id));
-                            header('Location:' . base_url . '/Roles');
-                        } else {
-                            Alertas::new($val->getErrors(), 'danger');
-                            header('Location:' . base_url . '/Roles/nuevo');
-                        }
-                    } catch (\PDOException $e) {
-                        Alertas::new($e->getMessage(), 'danger');
-                        header('Location:' . base_url . '/Roles/nuevo');
-                    }
+    public function show_row() {        
+        if($_SERVER['REQUEST_METHOD'] == 'POST'){
+            $id = $_POST['id'] ?? null;
+            $idRol = intval(limpiar($id));
+            if ($idRol > 0) {
+                $rol = RolesModel::editRol($idRol);
+                if (empty($rol)) {                    
+                    header('Location:' . base_url . '/Roles');
                 }
-            }
-        }else{
-            if (Permisos::updater()) {
-                if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                    try {
-                        //validar formulario
-                        $val = new Validations();
-                        $val->name('Nombre del rol')->value(limpiar($_POST['nombre_rol']))->min(5)->required();
-                        $val->name('Estado del rol')->value(limpiar($_POST['selstatus']))->required();
-                        if ($val->isSuccess()) {
-                            //guardar registro
-                            $data = [
-                                'nombre_rol' => limpiar($_POST['nombre_rol']),
-                                'status_rol' => limpiar($_POST['selstatus']),
-                                'modify_user' => $_SESSION['id_user']
-                            ];
-                            $id = RolesModel::actualizarRol($_POST['id'], $data);
-                            Alertas::new(sprintf('El rol %s se ha modificado exitosamente con el id %s', $data['nombre_rol'], $id));
-                            header('Location:' . base_url . '/Roles');
-                        } else {
-                            Alertas::new($val->getErrors(), 'danger');
-                            header('Location:' . base_url . '/Roles/edit');
-                        }
-                    } catch (\PDOException $e) {
-                        Alertas::new($e->getMessage(), 'danger');
-                        header('Location:' . base_url . '/Roles/edit');
-                    }
-                }
+                echo json_encode($rol, JSON_UNESCAPED_UNICODE);
+            } else {
+                header('Location:' . base_url . '/Roles');
             }
         }
     }
-    public function destroy()
-    {
-        $dataJson = [];
-        if (empty($_POST['id'])) {
-            $dataJson = [
-                'status' => false,
-                'msg' => 'No se recibieron los datos'
-            ];
-        } else {
+    public function delete(){
+        if($_SERVER['REQUEST_METHOD'] == 'POST'){                     
             $id = intval(limpiar($_POST['id']));
-            $ide = RolesModel::deleteRol($id);
-            $dataJson = [
-                'status' => true,
-                'msg' => sprintf('El rol %s se ha eliminado correctamente', $_POST['name'])
-            ];
-        }        
-        echo json_encode($dataJson, JSON_UNESCAPED_UNICODE);
+            $r = RolesModel::deleteRol($id);            
+            echo json_encode($r, JSON_UNESCAPED_UNICODE);
+        }
     }
     //Listar Roles
     public function listar_roles(){

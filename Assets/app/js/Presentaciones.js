@@ -12,7 +12,7 @@ $(document).ready(function() {
     $("#cod_pre").on("keyup", function(e) {
         var cod_cod_preaux = $("#cod_pre").val();
         var dataString = 'cod_pre=' + cod_pre;
-        let url =  `${base_url}/Presentaciones/validar`; 
+        url =  `${base_url}/Presentaciones/validar`; 
         $.ajax({
             url: url,
             type: "POST",
@@ -45,7 +45,7 @@ function eliminarBtn(element) {
              datos.append('name', namem);    
              datos.append('cod', codm);                
              try {                                
-                let url =  `${base_url}/Presentaciones/destroy`;                     
+                url =  `${base_url}/Presentaciones/destroy`;                     
                 let repuesta = await fetch(url, {
                     method:"POST",
                     body: datos,

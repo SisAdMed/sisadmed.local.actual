@@ -13,8 +13,7 @@
             </div>
         </div>
     </section>
-    <section class="content">
-        <?php echo Alertas::mostrarAlerta() ?>
+    <section class="content">        
         <form id="my_form" name="my_form" method="POST" class="form-horizontal form-label-left" enctype="multipart/form-data">
             <div class="row d-flex justify-content-center text-xs">
                 <?php include_once __DIR__ . "/form.php" ?>

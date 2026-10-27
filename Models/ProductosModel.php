@@ -85,18 +85,18 @@ class ProductosModel extends DB {
         if($id_ubi){
             $saldo = " fn_saldo_ant_inv_consig(p.id_prod, '$id_alm', $id_ubi, '$fecha') ";
         }
-        $sql = "SELECT p.id_prod, p.cod_prod, p.cod2_prod, p.nom_prod, p.ref_prod, ma.nom_fab, p.costo_prod,p.flete_prod, p.otros_prod, p.door_costo, p.recar_prod, p.ventas_prod, p.recar2_prod, p.venta2_prod, p.status, g.grupo_nombre, p.uni_ven_prod, p.origen, p.alto, p.ancho, p.largo, pre1.nom_pre empaque, pre2.nom_pre bultos, pre.nom_pre, p.gen_prod, p.des_prod, p.uni_com_prod, p.con_cons_prod, p.conv_prod_cons, p.iva_prod, p.lote_prod, p.interno_prod, p.door_prod, $saldo as stock, IFNULL(ma.adicional01, 0) noadic, p.id_fab FROM f4005 p INNER JOIN f4004 pre on pre.id_pre = p.id_pre INNER JOIN f4007 g on g.id_grupo = p.id_grupo INNER JOIN f4003 ma on ma.id_fab = p.id_fab LEFT OUTER JOIN f4004 pre1 on pre1.id_pre = p.id_presen1 LEFT OUTER JOIN f4004 pre2 ON pre2.id_pre = p.id_presen2 WHERE p.id_prod = {$id} " . $filter;
+        $sql = "SELECT p.id_prod, p.cod_prod, p.cod2_prod, p.nom_prod, p.ref_prod, ma.nom_fab, p.costo_prod,p.flete_prod, p.otros_prod, p.door_costo, p.recar_prod, p.ventas_prod, p.recar2_prod, p.venta2_prod, p.status, g.grupo_nombre, p.uni_ven_prod, p.origen, p.alto, p.ancho, p.largo, pre1.nom_pre empaque, pre2.nom_pre bultos, pre.nom_pre, p.gen_prod, p.des_prod, p.uni_com_prod, p.con_cons_prod, p.conv_prod_cons, p.iva_prod, p.lote_prod, p.interno_prod, p.door_prod, $saldo as stock, IFNULL(ma.adicional01, 0) noadic, p.id_fab FROM f4005 p INNER JOIN f4004 pre on pre.id_pre = p.id_pre INNER JOIN f4007 g on g.id_grupo = p.id_grupo INNER JOIN f4003 ma on ma.id_fab = p.id_fab LEFT OUTER JOIN f4004 pre1 on pre1.id_pre = p.id_presen1 LEFT OUTER JOIN f4004 pre2 ON pre2.id_pre = p.id_presen2 WHERE p.id_prod = {$id} " . $filter;        
         $r = DB::query($sql);
         return $r[0];
     }
-    static function consulta_presu($id){
+    static function consulta_presu(int $id){
         $fecha = Date('Y-m-d');
         $filter = '';
         $x = DB::query("SELECT GROUP_CONCAT(id_alm) id_alm FROM f4999;");
         $id_alm = $x[0]['id_alm'];
         $saldo = " fn_saldo_act_inv(0, p.id_prod, '$id_alm', '$fecha') ";
         
-        $sql = "SELECT p.id_prod, p.cod_prod, p.cod2_prod, p.nom_prod, p.ref_prod, ma.nom_fab, p.costo_prod,p.flete_prod, p.otros_prod, p.door_costo, p.recar_prod, p.ventas_prod, p.recar2_prod, p.venta2_prod, p.status, g.grupo_nombre, p.uni_ven_prod, p.origen, p.alto, p.ancho, p.largo, pre1.nom_pre empaque, pre2.nom_pre bultos, pre.nom_pre, p.gen_prod, p.des_prod, p.uni_com_prod, p.con_cons_prod, p.conv_prod_cons, p.iva_prod, p.lote_prod, p.interno_prod, p.door_prod, $saldo as stock, IFNULL(ma.adicional01, 0) noadic, p.id_fab FROM f4005 p INNER JOIN f4004 pre on pre.id_pre = p.id_pre INNER JOIN f4007 g on g.id_grupo = p.id_grupo INNER JOIN f4003 ma on ma.id_fab = p.id_fab LEFT OUTER JOIN f4004 pre1 on pre1.id_pre = p.id_presen1 LEFT OUTER JOIN f4004 pre2 ON pre2.id_pre = p.id_presen2 WHERE p.id_prod = {$id} " . $filter;
+        $sql = "SELECT p.id_prod, p.cod_prod, p.cod2_prod, p.nom_prod, p.ref_prod, ma.nom_fab, p.costo_prod,p.flete_prod, p.otros_prod, p.door_costo, p.recar_prod, p.ventas_prod, p.recar2_prod, p.venta2_prod, p.status, g.grupo_nombre, p.uni_ven_prod, p.origen, p.alto, p.ancho, p.largo, pre1.nom_pre empaque, pre2.nom_pre bultos, pre.nom_pre, p.gen_prod, p.des_prod, p.uni_com_prod, p.con_cons_prod, p.conv_prod_cons, p.iva_prod, p.lote_prod, p.interno_prod, p.door_prod, $saldo as stock, IFNULL(ma.adicional01, 0) noadic, p.id_fab FROM f4005 p INNER JOIN f4004 pre on pre.id_pre = p.id_pre INNER JOIN f4007 g on g.id_grupo = p.id_grupo INNER JOIN f4003 ma on ma.id_fab = p.id_fab LEFT OUTER JOIN f4004 pre1 on pre1.id_pre = p.id_presen1 LEFT OUTER JOIN f4004 pre2 ON pre2.id_pre = p.id_presen2 WHERE p.id_prod = {$id} " . $filter;        
         $r = DB::query($sql);
         return $r[0];
     }

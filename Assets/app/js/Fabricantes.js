@@ -19,7 +19,7 @@ $(document).ready(function() {
     $("#nom_fab").on("keyup", function(e) {
         var cod_cod_preaux = $("#nom_fab").val();
         var dataString = 'nom_fab=' + nom_fab;
-        let url =  `${base_url}/Fabricantes/validar`;
+        url =  `${base_url}/Fabricantes/validar`;
         $.ajax({
             url: url,
             type: "POST",
@@ -59,7 +59,7 @@ async function borrar(idm, namem){
     datos.append('id', idm);
     datos.append('name', namem);
     try{
-        let url = `${base_url}/Fabricantes/destroy`;
+        url = `${base_url}/Fabricantes/destroy`;
         console.log(url);
         const repuesta = await fetch(url, {
         method: 'POST',

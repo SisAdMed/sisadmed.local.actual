@@ -1,16 +1,20 @@
 //Variables
-let url;
-let table_index;
-let tableIndex;
-let tblIndexMain = "#tblIndexMain";;
-let permisos_cre = '';
-let permisos_rea = '';
-let permisos_upd = '';
-let permisos_del = '';
-let id_menu;
-let admin = '';
+url = '';
+table_index = '';
+tableIndex = '';
+tblIndexMain = "#tblIndexMain";;
+permisos_cre = '';
+permisos_rea = '';
+permisos_upd = '';
+permisos_del = '';
+id_menu = '';
+admin = '';
+// Lo llamas cuando realmente lo vayas a usar, asegurando que ya fue cargado
+if (typeof window.getTMod === 'function') {
+    TMod = window.getTMod();
+}
 // Coloca la clave PÚBLICA (Public Key) que generaste previamente
-const VAPID_PUBLIC_KEY = 'BGhSxPWMmmWwhGtTvzaE_nCe6q96yIYZu10dpEAQWP5XFH1-Hdo7sQw-oFWSNF9aep8aOoMpeSC_A8T6TBedaes';
+VAPID_PUBLIC_KEY = 'BGhSxPWMmmWwhGtTvzaE_nCe6q96yIYZu10dpEAQWP5XFH1-Hdo7sQw-oFWSNF9aep8aOoMpeSC_A8T6TBedaes';
 //Cargar confiuraciones generales
 //Atributos de DataTable de Index
 $(document).ready(function () {
@@ -23,6 +27,79 @@ $(document).ready(function () {
 				Swal.close();
 			}
 		});
+	});
+	//Buscar Cuenta Contable btn-buscar-ctbcue
+	$(document).on('click', '.btn-buscar-ctbcue', function (e) {
+		e.preventDefault();
+		var item = parseFloat($(this).data('item'));
+		$('#modal-CuentasCtb').data('item-activo', item);
+		// Abrir el modal
+		$('#modal-CuentasCtb').modal('show');
+	});
+	//Mostrar Modal de Cuentas Contables
+	$("#modal-CuentasCtb").on("show.bs.modal", async function (e) {
+		url = `${base_url}/CuentasCtb/modal_CuentasCtb`;
+		$.ajax({
+			url: url,
+			datatype: "json",
+			success: function (response) {
+				response_new = JSON.parse(response);
+				$("#tblModal_cuentasCTB").DataTable().clear();
+				$("#tblModal_cuentasCTB").DataTable().destroy();
+				var tblModal_cuentasCTB = new DataTable("#tblModal_cuentasCTB", {
+					aProcessing: true,
+					aServerSide: true,
+					columnDefs: [
+						{
+							targets: 0,
+							visible: false,
+							searchable: false,
+						},
+					],
+					fnCreatedRow: function (rowEl, response_new) {
+						$(rowEl).attr("id", response_new[0]);
+					},
+					order: [[1, "asc"]],
+					language: {
+						url: `${base_url}/Assets/json/es-ES.json`,
+					},
+				});
+				response_new.forEach(function (e) {
+					tblModal_cuentasCTB.row
+						.add([
+							e.id_cta,
+							e.cod_cta,
+							e.nombre_cta,
+							e.agrupa_cta,
+							e.aux_cta,
+							e.tip_cta,
+						])
+						.draw();
+				});
+				$("#modal-CuentasCtb").modal("show");
+			},
+		});
+	});
+	//Seleccionar una Cuenta Contable en especifico
+	// Variable para recordar qué item se va a modificar
+	$(document).on("click", "#tblModal_cuentasCTB tbody tr", function () {
+		// 1. Obtener la fila seleccionada en DataTables
+		var tableModal = $('#tblModal_cuentasCTB').DataTable();
+		var data = tableModal.row(this).data();
+		if (!data) return;
+		// 2. Extraer el valor del item guardado
+		item = $('#modal-CuentasCtb').data('item-activo');
+		var suffix = item ? item : ''; // Maneja selectores dinámicos 
+		// 3. Extraer y normalizar datos
+		var id_cue = data.id_cta || data[0];
+		var nombre_cta = typeof decodeHTMLEntities === "function"
+			? decodeHTMLEntities(data.nombre_cta || data[1])
+			: (data.nombre_cta || data[1]);
+		// 4. Asignar valores a los inputs
+		$("#id_cue" + suffix).val(id_cue);
+		$("#nombre_cta" + suffix).val(nombre_cta).attr('title', nombre_cta);
+		// 8. Cerrar modal y disparar evento solo en el campo modificado
+		$("#modal-CuentasCtb").modal("hide");
 	});
 	//Buscar Producto
 	$(document).on('click', '.btn-buscar-producto', function (e) {
@@ -38,7 +115,7 @@ $(document).ready(function () {
 	});
 	//Mostrar Modal de Oroductos
 	$("#modal-productos").on("show.bs.modal", async function (e) {
-		let url = "";
+		url = "";
 		let datos = "";
 		if (tipo_fac != "N") {
 			id_alm_res = $("#id_alm").val();
@@ -77,9 +154,9 @@ $(document).ready(function () {
 				(c_consig == 1 && tipo_fac == "N") ||
 				(c_consig == 1 && tipo_fac == "NF")
 			) {
-				if(!id_alm){
+				if (!id_alm) {
 					id_alm = $("#id_alm").val();
-				}				
+				}
 				if ($("#id_alm_def").val()) {
 					id_alm = $("#id_alm_def").val();
 				}
@@ -212,8 +289,8 @@ $(document).ready(function () {
 		$('#modal-ubicaciones').modal('show');
 	});
 	//Poblar Modal de Ubicaciones
-	$("#modal-ubicaciones").on("show.bs.modal", function (e) {				
-		const url = `${base_url}/Ubicaciones/listar_ubicaciones`;		
+	$("#modal-ubicaciones").on("show.bs.modal", function (e) {
+		url = `${base_url}/Ubicaciones/listar_ubicaciones`;
 		if ($.fn.DataTable.isDataTable('#tblModalUbicaciones')) {
 			$('#tblModalUbicaciones').DataTable().clear().destroy();
 		}
@@ -236,10 +313,10 @@ $(document).ready(function () {
 				url: `${base_url}/Assets/json/es-ES.json`,
 			},
 			columns: [
-				{ data: "id_ubi", title: "Id", visible: false, searchable: false }, 
-				{ data: "cod_ubi", title: "Código" }, 
+				{ data: "id_ubi", title: "Id", visible: false, searchable: false },
+				{ data: "cod_ubi", title: "Código" },
 				{ data: "nom_ubi", title: "Nombre" }
-			],			
+			],
 		});
 	});
 	//Seleccionar registro marcado del Modal de Ubicaciones y mostrarlo en el formulario
@@ -268,9 +345,26 @@ $(document).ready(function () {
 		}
 		$("#modal-ubicaciones").modal("hide");
 	});
+	// Evento cuando cambia la Fecha del comprobante
+	$(document).on("change", "#fecha_comp", function (e) {
+		e.preventDefault();		
+		id_emp = $("#id_emp").val();
+		id_moneda = $("#id_moneda").val();
+		fecha_comp = $("#fecha_comp").val();	
+		validarYObtenerTasa(id_emp, id_moneda, fecha_comp);	
+		
+	});
+	// Evento cuando cambia la Moneda
+	$(document).on("change", "#id_moneda", function (e) {
+		e.preventDefault();
+		id_emp = $("#id_emp").val();
+		id_moneda = $("#id_moneda").val();
+		fecha_comp = $("#fecha_comp").val();		
+		validarYObtenerTasa(id_emp, id_moneda, fecha_comp);
+	});
 })
 function IndexDataTable(url, table, report, xcolums, xcol_def = "", xInit = "", xorder = 1, xdir = "DESC") {
-	
+
 	//Crear DataTable
 	var val_url = `${base_url}/${url}/cargar_screen_main`;
 	report = report + " ";
@@ -888,7 +982,7 @@ function get_permiso(id_menu) {
 //Obtener Fechas Abiertas
 function get_empresa_config(id_emp) {
 	let config = {};
-	const url = `${base_url}/Empresas/get_empresa_config`;
+	url = `${base_url}/Empresas/get_empresa_config`;
 	try {
 		$.ajax({
 			url: url,
@@ -947,7 +1041,7 @@ async function ConsultarProducto(
 	cant = 1
 ) {
 	// 1. Garantizar el uso del ítem correcto de la fila
-	item = xitem;
+	let item = parseInt(xitem, 10);
 	let local_id_alm = typeof id_alm !== 'undefined' ? id_alm : "";
 	let local_id_ubi = typeof id_ubi !== 'undefined' ? id_ubi : "";
 
@@ -993,7 +1087,7 @@ async function ConsultarProducto(
 
 	try {
 		// 3. Determinar URL del endpoint de manera limpia
-		const url = (tipo_fac === "P")
+		url = (tipo_fac === "P")
 			? `${base_url}/Productos/consulta_presu`
 			: `${base_url}/Productos/consulta`;
 
@@ -1094,21 +1188,29 @@ async function ConsultarProducto(
 			// Aplicar tasa de cambio final si las monedas coinciden
 			let xTasaCambioDef = 1;
 			if (xMonedaCia == id_moneda) {
-				let xTasaCambio = await xTasa($("#fecha_comp").val(), 2);
+				let xTasaCambio = await xTasa($("#fecha_comp").val(), 4);
 				xTasaCambioDef = parseFloat(xTasaCambio.replace(",", "."));
 				xventas_prod = xventas_prod * xTasaCambioDef;
 			}
 
 			// Setear inputs de precios y totales
 			let xVentasxUnidad = xventas_prod / uni_ven_prod;
-			$("#ventas_prod" + item).val(format_number_with_dec_new(xVentasxUnidad, 2));
-			$("#ventas_prod1" + item).val(format_number_with_dec_new(xventas_prod, 2));
+			//$("#ventas_prod_" + item).val(format_number_with_dec_new(xVentasxUnidad, 4));
+			//$("#ventas_prod1_" + item).val(format_number_with_dec_new(xventas_prod, 4));
+			// En lugar de: $("#ventas_prod" + item).val(...) 
+			// Haces la búsqueda acotada al tr de ese ítem específico:
+			let filaTr = $(`#tblDetalle tr[data-item="${item}"]`);
+			// Actualizas los inputs dentro de esa fila exacta sin riesgo de que colisionen con otros ítems
+			filaTr.find(`input[name="ventas_prod[]"]`).val(format_number_with_dec_new(xVentasxUnidad, 4));
+			filaTr.find(`.camponumero`).val(format_number_with_dec_new(xventas_prod, 4));
 
 			xtotal = ($("#cant" + item).val() || 0) * xventas_prod;
-			$("#total" + item).val(format_number_with_dec_new(xtotal, 2));
+			$("#total" + item).val(format_number_with_dec_new(xtotal, 4));
 
 			// Foco interactivo en cantidad
-			$("#cant" + item).show().focus();
+			//$("#cant" + item).show().focus();
+			//Mejorado
+			$("#cant" + item).show().focus().select();
 
 			// ==========================================
 			// SECCIÓN B: PROCESAMIENTO DE COMPRAS
@@ -1137,11 +1239,11 @@ async function ConsultarProducto(
 
 				let xComprasxUnidad = xcompras_prod / (resultado["uni_com_prod"] || 1);
 				$("#uni_com_prod" + item).val(resultado["uni_com_prod"]);
-				$("#costo_prod" + item).val(format_number_with_dec_new(xComprasxUnidad, 2));
-				$("#costo_prod1" + item).val(format_number_with_dec_new(xcompras_prod, 2));
+				$("#costo_prod" + item).val(format_number_with_dec_new(xComprasxUnidad, 4));
+				$("#costo_prod1" + item).val(format_number_with_dec_new(xcompras_prod, 4));
 
 				xtotal = cant * xcompras_prod;
-				$("#total" + item).val(format_number_with_dec_new(xtotal, 2));
+				$("#total" + item).val(format_number_with_dec_new(xtotal, 4));
 			} else {
 				// Compras Internacionales
 				$(`#ref_prod${item}`).val(resultado['ref_prod']);
@@ -1162,7 +1264,7 @@ async function ConsultarProducto(
 			let elem = $("#" + selector + item);
 			elem.prop("title", elem.val());
 		});
-		$("#total" + item).prop("title", format_number_with_dec_new(xtotal, 2));
+		$("#total" + item).prop("title", format_number_with_dec_new(xtotal, 4));
 
 		// 8. Ejecución de recálculos de tabla nativos
 		let tasa_cambio_Val = $("#tasa_cambio").val() ? formatoMoneda($("#tasa_cambio").val()) : 1;
@@ -1183,7 +1285,7 @@ async function ConsultarProducto(
 async function recorreTable_fac(verstock = 0, tasa_cambio = 1, tipo, tabla = 'tblDetalle') {
 	if (!xtasavatTax_val) {
 		fecha = $("#fecha_comp").val();
-		if(!fecha) return false;
+		if (!fecha) return false;
 		xtasavatTax = await xvatTax(fecha, "IVA");
 		xtasaIVA = parseFloat(xtasavatTax[0]["txr1_iva"]);
 		xtasavatTax_val = true;
@@ -1288,7 +1390,7 @@ function solicitarPermisoNotificaciones(swReg) {
 	});
 }
 function guardarSuscripcionEnServidor(subscription) {
-	const url = `${base_url}/Usuarios?action=subscribe`;
+	url = `${base_url}/Usuarios?action=subscribe`;
 	fetch(url, {
 		method: 'POST',
 		headers: {
@@ -1302,4 +1404,128 @@ function guardarSuscripcionEnServidor(subscription) {
 			//console.log('Suscripción guardada en el servidor:', data);
 		})
 		.catch(err => console.error('Error enviando suscripción al backend:', err));
+}
+/**
+ * Obtener la Tasa de Cambio a una fecha y moneda dada
+ * @param {*} fecha_comp 
+ * @param {*} id_moneda 
+ */
+async function obtener_cambio(fecha_comp, id_moneda) {
+	xtasa = await getExchangerate(fecha_comp, id_moneda);
+	$("#tasa_cambio").val(xtasa);
+	if ((id_moneda = id_moneda_cia)) {
+		xtasa_for = await getExchangerate(fecha_comp, 2);
+	}
+}
+/**
+ * Validar Tanto la fecha como el valor d la tasa de cambio a mostrar, unificando ambos eventes
+ * @returns 
+ */
+function validarYObtenerTasa(empParam, monedaParam, fechaParam) {
+	TMod = localStorage.getItem('Tmod');
+	let id_emp = empParam || $("#id_emp").val();
+	let fecha_comp = fechaParam || $("#fecha_comp").val();
+	let id_moneda = monedaParam || $("#id_moneda").val();
+
+	// Validar Fechas de Contabilidad
+	let id_emp_cfg = get_empresa_config(id_emp);
+	let fec_ctb = "";
+	if (typeof TMod !== 'undefined' && TMod == "B") {
+		fec_ctb = id_emp_cfg["fec_ban"] || "";
+	}else if(typeof TMod !== 'undefined' && TMod == "P") {
+		fec_ctb = id_emp_cfg["fec_cxp"] || "";
+	}else if(typeof TMod !== 'undefined' && TMod == "C") {
+		fec_ctb = id_emp_cfg["fec_cxc"] || "";
+	}else{
+		fec_ctb = id_emp_cfg["fec_ctb"] || "";
+	}
+
+	// Validar si la fecha es menor o igual a la de contabilidad (solo si fec_ctb no está vacía)
+	if (fec_ctb && fecha_comp && fecha_comp <= fec_ctb) {
+		$("#fecha_comp").addClass("is-invalid");
+		$("#fecha_comp").attr("title", "La fecha del movimiento no puede ser menor a la fecha de contabilidad de la empresa");
+		$("#btnok").prop("disabled", true);
+		$("#tasa_cambio").val("");
+		return false; // Detiene el proceso si la fecha no es válida
+	} else {
+		$("#fecha_comp").removeClass("is-invalid");
+		$("#btnok").prop("disabled", false);
+
+		// Si tenemos fecha y moneda válidas, buscamos la tasa respectiva
+		if (fecha_comp && id_moneda) {
+			if (typeof obtener_cambio === 'function') {
+				obtener_cambio(fecha_comp, id_moneda);
+			}
+		} else {
+			$("#tasa_cambio").val("");
+		}
+	}
+}
+//Configuración General - Roles
+function initRoles(){
+	const title = "Configuración General - Roles";
+	const origen = "Roles";
+	const id_menu = 2;
+	get_permiso(id_menu);
+	IndexDataTable(origen, tblIndexMain, title, [
+		{ data: null, title: "Acciones", className: "text-center",
+			render:  function(data, type, row){
+				var t_menu = "";
+				t_menu += `<a type="button" class="btn btn-info btn-xs" href="${base_url}/Permiso/gestion/${row.token_show}"><i class="fa fa-key"></i></a>     `;
+				if(permisos_cre == 1 && permisos_upd == 1){
+					t_menu += `<a type="button" class="btn btn-warning btn-xs" href="${base_url}/${origen}/gestion/${row.token_edit}"><i class="fa fa-edit"></i></a>     `;
+				}
+				if(permisos_del == 1){
+					t_menu += `<button id="Data" data-id="${row.id_rol}" data-name="${row.nombre_rol}" type="button" class="btn btn-danger btn-xs btn-delete-index"><i class="fa fa-trash"></i></button>`;
+				}
+				return t_menu;
+			}
+		},
+		{ data: "id_rol", title: "Id", className: "text-right", visible: false },
+		{ data: "nombre_rol", title: "Nombre del Rol" },
+		{
+            data: null,
+            title: "Status",
+            className: "text-center",
+            render: function (data, type, row) {
+                if (row.status_rol == 1) {
+                    return '<span class="badge badge-success">Activo</span>';
+                } else if (row.status_rol == 0) {
+                    return '<span class="badge badge-danger">Inactivo</span>';
+                } else if (row.status_rol == 9) {
+                    return '<span class="badge badge-warning">Por aprobar</span>';
+                }
+            },
+        },
+	],'','', 1,"desc")
+}
+// Fiscal - Retención de ISLR
+function initRetISLR(){
+	const title = "Fiscal - Retención de ISLR";
+	const origen = "RetISLR";
+	const id_menu = 165;
+	get_permiso(id_menu);
+	IndexDataTable(origen, tblIndexMain, title, [
+		{ data: null, title: "Acciones", className: "text-center",
+			render:  function(data, type, row){
+				var t_menu = "";				
+				if(permisos_cre == 1 && permisos_upd == 1){
+					t_menu += `<a type="button" class="btn btn-warning btn-xs" href="${base_url}/${origen}/gestion/${row.token_edit}"><i class="fa fa-edit"></i></a>     `;
+				}
+				if(permisos_del == 1){
+					t_menu += `<button id="Data" data-id="${row.id}" data-name="${row.descrip}" type="button" class="btn btn-danger btn-xs btn-delete-index"><i class="fa fa-trash"></i></button>`;
+				}
+				return t_menu;
+			}
+		}, 
+		{ data: "id", title: "Id", className: "text-right", visible: false },
+		{ data: "fecha_vigencia", title: "Fecha Vigencia", className: "text-center", render: $.fn.dataTable.render.moment(FROM_PATTERN, TO_PATTERN)},
+		{ data: "descrip", title: "Descripción" },
+		{ data: 'por_reten', title: "Porc.Retenc.", className: "text-right", render: $.fn.dataTable.render.number('.', ',', 2, '')},
+		{ data: 'por_imp_suj_ret', title: "Imp.Suj.Retenc.", className: "text-right", render: $.fn.dataTable.render.number('.', ',', 2, '')},
+		{ data: 'minimo', title: "Mínimo", className: "text-right",  render: $.fn.dataTable.render.number('.', ',', 2, '') },
+        { data: 'maximo', title: "Maxímo", className: "text-right", render: $.fn.dataTable.render.number('.', ',', 2, '')},
+		{ data: 'sustraendo', title: "Sustraendo", className: "text-right", render: $.fn.dataTable.render.number('.', ',', 2, '')},
+		{ data: "code_seniat", title: "Cód. Seniat", className: "text-center"},
+	], "", "", 1, "desc")
 }

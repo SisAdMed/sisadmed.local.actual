@@ -940,3 +940,21 @@ function sanearMensajeOverlay($texto)
     // Limitar a 255 caracteres
     return mb_substr($textoLimpio, 0, 255);
 }
+/**
+ * Function para registrar mensajes en eun archivo log
+ * @param string $mensaje El mensaje que se desea gurdar
+ * @param string $tipo    El tipo de log ('INFO' para éxito, 'ERROR' para fallos)
+ */
+function registrarLog($mensaje, $tipo = 'INFO', $file = 'close_date.log'){
+    //Ruta del archivo de log (se puede cambiar la ruta segun tu estructura)
+    $archivoLog = $file;
+    // Obtener la fecha y hora actual con tu zona horaria
+    $zonaHoraria = new DateTimeZone('America/Caracas');
+    $fechaHora = (new DateTime('now', $zonaHoraria))->format('Y-m-d H:i:s');
+    
+    // Construir la línea del log
+    $lineaLog = sprintf("[%s] [%s]: %s" . PHP_EOL, $fechaHora, strtoupper($tipo), $mensaje);
+    
+    // Escribir en el archivo (FILE_APPEND evita que se sobrescriba y agrega al final)
+    file_put_contents($archivoLog, $lineaLog, FILE_APPEND);
+}

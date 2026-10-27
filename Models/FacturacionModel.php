@@ -1,17 +1,13 @@
 <?php
-class FacturacionModel extends DB
-{
-    public function __construct()
-    {
+class FacturacionModel extends DB{
+    public function __construct(){
         parent::__construct();
     }
-    static function all(string $tipo)
-    {
+    static function all(string $tipo){
         return $r = DB::query("SELECT c.id_cot, e.nombre_emp, t.nom_tdoc, c.num_tdo, a.nom_ent, c.fecha_comp, m.codigo_moneda, CASE WHEN c.imp_crcd = 0 THEN c.tasa_cambio ELSE c.imp_tasa_cambio END tasa_cambio, v.nom_vend, c.status, c.id_cont fuente, ap.status penapro, c.nro_control, a.print_special, c.id_moneda, CONCAT(uc.name_user, ' ', uc.last_user) creado_por, IFNULL(CONCAT(um.name_user, ' ', um.last_user), ' ') modificado_por FROM f6003 c INNER JOIN f0011 e ON e.id_emp = c.id_emp INNER JOIN f6001 t ON t.id_tdoc = c.id_tdo INNER JOIN f0014 a ON a.id_ent = c.id_cli INNER JOIN f0005 m ON m.id_moneda = c.id_moneda INNER JOIN f0016 v ON v.id_vend = c.id_vend LEFT OUTER JOIN f4008 co ON co.id_cot = SUBSTRING(c.id_cont,1,LOCATE('-', c.id_cont) - 1) LEFT OUTER JOIN f6001 td ON td.id_tdoc = co.id_tdo LEFT OUTER JOIN fgenmsg ap ON ap.id_cot = c.id_cot AND ap.status = 1 AND ap.tipo_fgenmsgcol = 1 INNER JOIN f4999 cfg ON cfg.id_emp = c.id_emp INNER JOIN f0002 uc ON uc.id_user = c.create_user LEFT OUTER JOIN f0002 um ON um.id_user = c.modify_user WHERE t.tipo_tdoc = '" . $tipo . "' ");
     }
-    static function guardar(array $enca, array $deta, $row = null, int $limite)
-    {
-        //Validar si genero movimiento bancario
+    static function guardar(array $enca, array $deta, int $row, int $limite){
+        //Validar si genero movimiento bancario        
         $fac_notas = true;
         if($_POST['fac_notas'] == 'false') $fac_notas = false;
         //                
@@ -42,13 +38,13 @@ class FacturacionModel extends DB
             $next_movim_ent = 0;
             $idMov = '';
             $idMovEnt = '';
-            $nro_control = 0;
+            $nro_control = $_POST['nro_control'];
             $next_number_flag_movin_ent = false;
             //Verificar si usa consecutivo
             if (!$row) {
                 if ($con_doc['con_tdoc'] == "1") {
                     $next_number_flag = true;
-                    $next_number = floatval($con_doc['num_tdoc']);
+                    $next_number = floatval($con_doc['num_tdoc']) - 1;                   
                 }
             }
             //Verificar Confgiuración de Empresa
@@ -95,7 +91,7 @@ class FacturacionModel extends DB
             if (!$row) {
                 if ($con_mov['consecutiv__tmoinv'] == "1") {
                     $next_number_flag_movin = true;
-                    $next_number_movin = floatval($con_mov['proximo_tmoinv']);
+                    $next_number_movin = floatval($con_mov['proximo_tmoinv']) - 1;
                 }
             }
             //Verificar si usa consecutivo el Tipo de Movimiento de Entrada
@@ -110,7 +106,7 @@ class FacturacionModel extends DB
                 if (!$row) {
                     if ($con_mov_ent['consecutiv__tmoinv'] == "1") {
                         $next_number_flag_movin_ent = true;
-                        $next_movim_ent = floatval($con_mov_ent['proximo_tmoinv']);
+                        $next_movim_ent = floatval($con_mov_ent['proximo_tmoinv'] - 1);
                     }
                 }
             }
@@ -119,12 +115,12 @@ class FacturacionModel extends DB
                 $sql_ctrl = "SELECT next_nroControl FROM f6007 WHERE id_emp = :id_emp AND status = 1 LIMIT 1";
                 $stmt_ctrl = $link->prepare($sql_ctrl);
                 $stmt_ctrl->execute([':id_emp' => $_POST['id_emp']]);
-                $nro_control = floatval($stmt_ctrl->fetchColumn());
-            }
-            foreach ($fac_limit as $index => $document) {
-                //Numero de Documento
-                if ($next_number_flag) {
-                    $next_number = $next_number + $index;
+                $nro_control = floatval($stmt_ctrl->fetchColumn() - 1);
+            }            
+            foreach ($fac_limit as $index => $document) {            
+            //Numero de Documento                
+                if ($next_number_flag) {                    
+                    $next_number = $next_number + 1;                    
                     $enca['num_tdo'] = $next_number;
                 }
                 if (empty($row)) {
@@ -134,7 +130,7 @@ class FacturacionModel extends DB
                     $msg = "Se ha actualizado satisfactoriamente la " . $nom_doc . " Nro. " . $next_number  . PHP_EOL;
                 }
                 if (!$row && ($tipo_tdoc == 'F' || $tipo_tdoc == 'N' || $tipo_tdoc == 'C')) {
-                    $nro_control = $nro_control + $index;
+                    $nro_control = $nro_control + 1;
                 }
                 if ($tipo_tdoc == 'F') {
                     $origen = 'FAC-' . $tipo_codigo . '-' . $_POST['id_emp'] . '-' . $next_number;
@@ -150,11 +146,11 @@ class FacturacionModel extends DB
                 }
                 //Numero de Movimiento de Inventario de Salida del Almacen
                 if ($next_number_flag_movin) {
-                    $next_number_movin = $next_number_movin + $index;
+                    $next_number_movin = $next_number_movin + 1;
                 }
                 //Numero de Movimiento de Inventario de Entrada al Almacen de Consignado
                 if ($c_consig_ent && $next_number_flag_movin_ent) {
-                    $next_movim_ent = $next_movim_ent + $index;
+                    $next_movim_ent = $next_movim_ent + 1;
                 }
                 $cols = "";
                 $placeholders = "";
@@ -179,7 +175,7 @@ class FacturacionModel extends DB
                     $colsStr         = implode(", ", $cols);
                     $placeholdersStr = implode(", ", $placeholders);
                     $sql             = "INSERT INTO f6003 ({$colsStr}) VALUES ({$placeholdersStr})";
-                    $stmt = $link->prepare($sql);
+                    $stmt = $link->prepare($sql);                    
                     $stmt->execute($params);
                     $idNE = $link->lastInsertId();
                     //Creaer encabezado de Movimiento de Inventario                      
@@ -431,7 +427,7 @@ class FacturacionModel extends DB
                 // PASO 3: INSERTAR Y/O ACTUALIZAR EN EL MAESTRO (DETALLE DE DOCUMENTOS CONCEPTOS)
                 // DETALLE DE CONCEPTOS
                 // =======================================================================  
-                if ($tipo_tdoc == 'F') {
+                if ($tipo_tdoc == 'F' || $tipo_tdoc == 'C') {                  
                     $sql_con_ventas = "SELECT a.id_con_sales, b.id_ctbaux FROM f4999 a INNER JOIN f6002 b ON b.id_emp = a.id_emp and a.id_con_sales = b.id WHERE a.id_emp = :id_emp AND a.status = 1";
                     $stmt_con_ventas = $link->prepare($sql_con_ventas);
                     $stmt_con_ventas->execute(['id_emp' => $_POST['id_emp']]);
@@ -443,19 +439,32 @@ class FacturacionModel extends DB
                     $det_ventas = $stmt_det_ventas->fetchAll(PDO::FETCH_ASSOC);
                     $sql_det_ventas = "INSERT INTO f60032 (id_cot, id_concxc, iva, id_aux, monto, mon_iva, create_user, create_date) VALUES (:id_cot, :id_concxc, :iva, :id_aux, :monto, :mon_iva, :create_user, :create_date)";
                     $stmt_det_ins = $link->prepare($sql_det_ventas);
+                    $total_cxc = 0;
                     foreach ($det_ventas as $ventas) {;
+                        $monto = $ventas['monto'];
+                        $mon_iva = $ventas['mon_iva'];
+                        $total_cxc += $monto;
+                        $total_cxc += $mon_iva;
                         $params = [
                             ':id_cot' => $idNE,
                             ':id_concxc' => $id_con[0]['id_con_sales'],
                             ':iva' => $ventas['iva_prod'],
                             ':id_aux' => $id_con[0]['id_ctbaux'],
-                            ':monto' => $ventas['monto'],
-                            ':mon_iva' => $ventas['mon_iva'],
+                            ':monto' => $monto,
+                            ':mon_iva' => $mon_iva,
                             ':create_user' => $_SESSION['id_user'],
                             ':create_date' => getAuditoria()
                         ];
                         $stmt_det_ins->execute($params);
                     }
+                    //Actualizar monto total de la factura en el encabezado                    
+                    $sql_upd_enca = "UPDATE f6003 SET mon_doc = :total_cxc, sal_doc = :total_cxc WHERE id_cot = :id_cot";
+                    $stmt_upd_enca = $link->prepare($sql_upd_enca);
+                    $stmt_upd_enca->execute([
+                        ':total_cxc' => $total_cxc,
+                        ':id_cot' => $idNE
+                    ]);
+                    $stmt_upd_enca->closeCursor();
                 }
             }
             //Actualizar proximo numero del Documento
@@ -509,8 +518,7 @@ class FacturacionModel extends DB
                 "msg" => $msg
             ];
         } catch (\PDOException $e) {
-            $link->rollback();
-            debug($e->getMessage());
+            $link->rollback();            
             return [
                 "title" => 'Se ha presentado un error',
                 "icon" => 'error',
@@ -560,14 +568,8 @@ class FacturacionModel extends DB
     static function edit_deta(int $id, string $tipo)
     {
         $x = DB::query("SELECT GROUP_CONCAT(id_alm) id_alm FROM f4999;");
-        $id_alm = $x[0]['id_alm'];
-        if ($tipo === 'NOF') {
-            $xtipo = 'NOF';
-        } else if ($tipo == 'NOL') {
-            $xtipo = 'NOL';
-        } else {
-            $xtipo = 'NOF';
-        }
+        $id_alm = $x[0]['id_alm'];        
+        $xtipo = $tipo;
         $sql = "SELECT a.id_emp, a.id_tdo, a.num_tdo, a.fecha_comp, a.fecha_venci, a.id_cli, d.nom_ent, a.id_moneda, a.tasa_cambio, a.id_vend, e.id_prod, f.nom_prod, e.can_det cant, e.uni_vta, e.pre_unit, e.pre_vta,  e.iva_prod, e.sub_total, a.nro_control, a.oc_cliente, fn_alm_in_out(a.id_emp, 'S', c.tipo_codigo, '$xtipo', a.num_tdo) alm_out, fn_alm_in_out(a.id_emp, 'E', c.tipo_codigo, '$xtipo', a.num_tdo) alm_in, fn_saldo_act_inv(a.id_emp, f.id_prod, IFNULL( fn_alm_in_out(a.id_emp, 'S', c.tipo_codigo, '$xtipo', a.num_tdo),'$id_alm'), a.fecha_comp) stock, a.descrip_cot, d.c_consig, a.id_motcam,   IFNULL(a.id_motcam, g.id_motcam) id_motcam, CASE WHEN a.adic_01 = 0 THEN g.adic_01 ELSE a.adic_01 END adic_01, CASE WHEN a.adic_02 = 0 THEN g.adic_02 ELSE a.adic_02 END adic_02 FROM f6003 a INNER JOIN f0011 b ON b.id_emp = a.id_emp INNER JOIN f6001 c ON c.id_tdoc = a.id_tdo INNER JOIN f0014 d ON d.id_ent = a.id_cli INNER JOIN f60031 e ON e.id_cot = a.id_cot INNER JOIN f4005 f ON f.id_prod = e.id_prod INNER JOIN f0012a g ON g.id_motcam = d.id_motcam WHERE a.id_cot = {$id}";
         return $r = DB::query($sql);
     }
@@ -583,7 +585,7 @@ class FacturacionModel extends DB
     }
     static function print_factura($id_cot)
     {
-        $r = DB::query("SELECT en.id_ent, pro.lote_prod, c.id_cot, IFNULL(en.print_lote, 0) print_lote, c.id_emp, em.nombre_emp nombre_emp, em.rif_empresa rif_empresa, em.dir_emp dir_emp, em.tel_emp tel_emp, em.email_emp email_emp, c.num_tdo num_tdo, tdo.nom_tdoc nom_tdoc, c.fecha_comp fecha_comp, en.nom_ent nom_ent, en.rif_ent rif_ent, en.dir_ent dir_ent, en.postal_ent postal_ent, pa.nombre_pais nombre_pais, es.nombre_edo nombre_edo, ci.nombre_ciudad nombre_ciudad, ve.nom_vend nom_vend, ve.ape_vend ape_vend, pro.cod_prod cod_prod, pro.cod2_prod cod2_prod, pro.nom_prod nom_prod, dc.iva_prod iva_prod, dc.can_det can_det, dc.pre_vta pre_vta, dc.sub_total sub_total, c.id_cot id_cot, em.logo logo, moc.codigo_moneda codigo_moneda, moe.codigo_moneda moneda_emp, CASE WHEN c.imp_crcd = 0 THEN c.tasa_cambio ELSE c.imp_tasa_cambio END tasa_cambio, cfg.id_tdoc_fac, cfg.note_fac, cfg.id_tdoc_cre, cfg.note_cre, cfg.id_tdoc_pre, cfg.note_pre, cfg.id_tdoc_not, cfg.note_not, cfg.id_tdoc_dev, cfg.note_dev, en.note_fac note_fac_custom, fab.nom_fab, pro.ref_prod, IFNULL(diascre.des_diascre, 'CONTADO') diascre, c.oc_cliente, c.descrip_cot, dc.id_prod, CASE WHEN c.id_doc_afec IS NOT NULL THEN CONCAT('Documento Afectado: ', tdoda.tipo_codigo, ' ', tdoda.nom_tdoc, ' ', da.num_tdo, ' de fecha ', DATE_FORMAT(da.fecha_comp, '%d-%m-%Y'), ' por un monto de ', FORMAT(da.mon_doc,2, 'de_DE')) ELSE ' ' END doc_afe, fab_fac.nom_fab nom_fab_fac FROM f6003 c INNER JOIN f6001 tdo ON tdo.id_tdoc = c.id_tdo INNER JOIN f60031 dc ON dc.id_cot = c.id_cot INNER JOIN f0011 em ON em.id_emp = c.id_emp INNER JOIN f0014 en ON en.id_ent = c.id_cli INNER JOIN f0004 pa ON pa.id_pais = en.id_pais INNER JOIN f00041 es ON es.id_edo = en.id_edo INNER JOIN f00042 ci ON ci.id_ciudad = en.id_ciudad INNER JOIN f0016 ve ON ve.id_vend = en.id_vend INNER JOIN f4005 pro ON pro.id_prod = dc.id_prod INNER JOIN f0005 moc ON moc.id_moneda = c.id_moneda INNER JOIN f0005 moe ON moe.id_moneda = em.id_moneda INNER JOIN f4003 fab ON fab.id_fab = pro.id_fab INNER JOIN f4999 cfg ON cfg.id_emp = c.id_emp LEFT OUTER JOIN f6005 diascre ON diascre.id_diascre = en.id_diascre LEFT OUTER JOIN f6003 da ON da.id_cot = c.id_doc_afec LEFT OUTER JOIN f6001 tdoda on tdoda.id_tdoc = da.id_tdo LEFT OUTER JOIN f4003 fab_fac ON fab_fac.id_fab = pro.id_fab_fac WHERE c.id_cot = {$id_cot}");
+        $r = DB::query("SELECT en.id_ent, pro.lote_prod, c.id_cot, IFNULL(en.print_lote, 0) print_lote, c.id_emp, em.nombre_emp nombre_emp, em.rif_empresa rif_empresa, em.dir_emp dir_emp, em.tel_emp tel_emp, em.email_emp email_emp, c.num_tdo num_tdo, tdo.nom_tdoc nom_tdoc, c.fecha_comp fecha_comp, en.nom_ent nom_ent, en.rif_ent rif_ent, en.dir_ent dir_ent, en.postal_ent postal_ent, pa.nombre_pais nombre_pais, es.nombre_edo nombre_edo, ci.nombre_ciudad nombre_ciudad, ve.nom_vend nom_vend, ve.ape_vend ape_vend, pro.cod_prod cod_prod, pro.cod2_prod cod2_prod, pro.nom_prod nom_prod, dc.iva_prod iva_prod, dc.can_det can_det, dc.pre_vta pre_vta, dc.sub_total sub_total, c.id_cot id_cot, em.logo logo, moc.codigo_moneda codigo_moneda, moe.codigo_moneda moneda_emp, CASE WHEN c.imp_crcd = 0 THEN c.tasa_cambio ELSE c.imp_tasa_cambio END tasa_cambio, cfg.id_tdoc_fac, cfg.note_fac, cfg.id_tdoc_cre, cfg.note_cre, cfg.id_tdoc_pre, cfg.note_pre, cfg.id_tdoc_not, cfg.note_not, cfg.id_tdoc_dev, cfg.note_dev, en.note_fac note_fac_custom, fab.nom_fab, pro.ref_prod, IFNULL(diascre.des_diascre, 'CONTADO') diascre, c.oc_cliente, c.descrip_cot, dc.id_prod, CASE WHEN c.id_doc_afec IS NOT NULL THEN CONCAT('Documento Afectado: ', tdoda.tipo_codigo, ' ', tdoda.nom_tdoc, ' ', da.num_tdo, ' de fecha ', DATE_FORMAT(da.fecha_comp, '%d-%m-%Y'), ' por un monto de ', FORMAT(da.mon_doc,2, 'de_DE')) ELSE ' ' END doc_afe, fab_fac.nom_fab nom_fab_fac, c.id_tdo FROM f6003 c INNER JOIN f6001 tdo ON tdo.id_tdoc = c.id_tdo INNER JOIN f60031 dc ON dc.id_cot = c.id_cot INNER JOIN f0011 em ON em.id_emp = c.id_emp INNER JOIN f0014 en ON en.id_ent = c.id_cli INNER JOIN f0004 pa ON pa.id_pais = en.id_pais INNER JOIN f00041 es ON es.id_edo = en.id_edo INNER JOIN f00042 ci ON ci.id_ciudad = en.id_ciudad INNER JOIN f0016 ve ON ve.id_vend = en.id_vend INNER JOIN f4005 pro ON pro.id_prod = dc.id_prod INNER JOIN f0005 moc ON moc.id_moneda = c.id_moneda INNER JOIN f0005 moe ON moe.id_moneda = em.id_moneda INNER JOIN f4003 fab ON fab.id_fab = pro.id_fab INNER JOIN f4999 cfg ON cfg.id_emp = c.id_emp LEFT OUTER JOIN f6005 diascre ON diascre.id_diascre = en.id_diascre LEFT OUTER JOIN f6003 da ON da.id_cot = c.id_doc_afec LEFT OUTER JOIN f6001 tdoda on tdoda.id_tdoc = da.id_tdo LEFT OUTER JOIN f4003 fab_fac ON fab_fac.id_fab = pro.id_fab_fac WHERE c.id_cot = {$id_cot}");
         return $r;
     }
     static function borrar($id)
@@ -728,7 +730,7 @@ class FacturacionModel extends DB
     /**Nuevos cambios */
     static function listar_cotizacones(int $id_emp, int $id_cli)
     {
-        $r = DB::query("SELECT id_cot, concat('Cotización: ', num_tdo, ' - Cliente: ', id_cli, ' - ', nom_ent) cliente FROM f4008 INNER JOIN f0014 on f0014.id_ent = f4008.id_cli WHERE f4008.id_emp = {$id_emp} AND f4008.id_cli = {$id_cli} AND f4008.id_cont is NULL AND f4008.status = 1");
+        $r = DB::query("SELECT id_cot, concat('Cotización: ', num_tdo, ' - Cliente: ', id_cli, ' - ', nom_ent) cliente FROM f4008 INNER JOIN f0014 on f0014.id_ent = f4008.id_cli WHERE f4008.id_emp = {$id_emp} AND f4008.id_cont is NULL AND f4008.status = 1");
         return $r;
     }
     static function listar_notas(int $id_emp, int $id_cli, string $fuente)
@@ -748,5 +750,52 @@ class FacturacionModel extends DB
         $sql = "SELECT b.id_prod, c.nom_prod, b.can_det cant, 0 stock, b.uni_vta, b.pre_unit, b.pre_vta, b.iva_prod, b.sub_total, a.tasa_cambio, a.id_moneda, a.num_tdo FROM `f6003`  a INNER JOIN f60031 b ON b.id_cot = a.id_cot INNER JOIN f4005 c ON c.id_prod = b.id_prod WHERE a.id_cot = {$id}";
         $r = DB::query($sql);
         return $r;
+    }
+    static function destroy(int $id){        
+        $db = new Conexion(); //Obtener la instancia del PDO
+        $link = (object)$db->conect();
+        try {
+            $link->beginTransaction();
+            //Obtener el Movimiento de Inventario asociado el Id del documento a eliminar
+            $sql = "SELECT id_movinv FROM f4009 WHERE id_cot = :id_cot";
+            $stmt = $link->prepare($sql);
+            $stmt->execute([':id_cot' => $id]);
+            $row = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
+            $sql_del_det = "DELETE FROM f40091 WHERE id_movinv = :id_movinv";
+            $sql_del_enc = "DELETE FROM f4009 WHERE id_movinv = :id_movinv";
+            $stmt_del_det = $link->prepare($sql_del_det);
+            $stmt_del_enc = $link->prepare($sql_del_enc);
+            foreach($row as $fila)            {
+                $id_movinv = $fila['id_movinv'];
+                //Eliminar detalle y Encabezado de Movimiento
+                $stmt_del_det->execute([':id_movinv' => $id_movinv]);
+                $stmt_del_enc->execute([':id_movinv' => $id_movinv]);
+                $stmt_del_det->closeCursor();               ;
+                $stmt_del_enc->closeCursor();
+            }            
+            //Borrar Detalle de Cuentas por Cobrar
+            $sql = "DELETE FROM f60032 WHERE id_cot = :id_cot";
+            $stmt = $link->prepare($sql);
+            $stmt->execute([':id_cot' => $id]);
+            $stmt->closeCursor();
+            //Cambiar a Inactivo el Documento
+            $sql = "UPDATE f6003 SET status = :status WHERE id_cot = :id_cot";
+            $stmt = $link->prepare($sql);
+            $stmt->execute([':id_cot' => $id, ':status' => 0]);
+            $stmt->closeCursor();
+            $link->commit();
+            return [
+                'success' => true
+            ];
+        } catch (\PDOException $e) {
+            $link->rollback();            
+            return [
+                "success" => false,
+                "title" => 'Se ha presentado un error',
+                "icon" => 'error',
+                "msg" => sprintf('Se ha presentado el error %s al guardar la %s, por favor verifique.', $e->getMessage(), $_SESSION['page_name'])
+            ];
+        }        
     }
 }

@@ -14,15 +14,16 @@ class AuxiliarCtb extends Controller
 
         $this->views->getView($this, "index", [
             'page_name' => "Auxiliares contables",
-            'function_js' => "AuxiliarCtb.js",
-            'function_js_mod' => "CTBFun.js",
+            'function_js' => "AuxiliarCtb.js?v=" . SITE_VERSION,
+            'function_js_mod' => "CTBFun.js?v=" . SITE_VERSION,
             'auxiliar' => to_obj($auxiliar)
         ]);
     }
     public function nuevo(){
         $this->views->getView($this, "nuevo", [
             'page_name' => "Nuevo Auxiliar contable",
-            'function_js' => "AuxiliarCtb.js"
+            'function_js' => "AuxiliarCtb.js?v=" . SITE_VERSION,
+            'function_js_mod' => "CTBFun.js?v=" . SITE_VERSION,
         ]);
     }
     public function edit($id){
@@ -36,7 +37,8 @@ class AuxiliarCtb extends Controller
                 }
                 $this->views->getView($this, "edit", [
                     'page_name' => "Editando el registro " . $r['nombre_aux'],
-                    'function_js' => "AuxiliarCtb.js",
+                    'function_js' => "AuxiliarCtb.js?v=" . SITE_VERSION,
+                    'function_js_mod' => "CTBFun.js?v=" . SITE_VERSION,
                     'r' => to_obj($r)
                 ]);
             } else {
@@ -48,37 +50,11 @@ class AuxiliarCtb extends Controller
         header('Location:' . base_url . '/AuxiliarCtb');
     }
     public function delete_row(){
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $dataJson = [];
-            $id = limpiar($_POST['cod_aux']);
-            try {
-                $r = AuxiliarCtbModel::borrar($id);
-                if ($r) {
-                    $dataJson = [
-                        'status' => true,
-                        'msg' => 'Eliminado',
-                        'icon' => 'success',
-                        'title' => 'Registro eliminado satisfactoriamente'
-                    ];
-                } else {
-                    $dataJson = [
-                        'status' => false,
-                        'msg' => 'Error',
-                        'icon' => 'error',
-                        'title' => 'No se puede eliminar el registro ya que posee registros hijos'
-                    ];
-                }
-            } catch (\PDOException $e) {
-                $msg = sprintf("Error código: %s, Descripción del Error: %s", $e->getCode(), $e->getMessage());
-                $title = "Se ha presentado un error, intente luego";
-                $dataJson = [
-                    'status' => false,
-                    'title' => $title,
-                    'icon' => 'error',
-                    'msg' => $msg
-                ];
-            }
-            echo json_encode($dataJson, JSON_UNESCAPED_UNICODE);
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {            
+            $id = limpiar($_POST['id']);
+            $cod_aux = limpiar($_POST['cod_aux']);
+            $r = AuxiliarCtbModel::borrar($id, $cod_aux);          
+            echo json_encode($r, JSON_UNESCAPED_UNICODE);
         }
     }
     public function store(){
@@ -183,7 +159,7 @@ class AuxiliarCtb extends Controller
     public function show_row(){
         if($_SERVER["REQUEST_METHOD"] == "POST"){
             $id = $_POST["id"];
-            $r = AuxiliarCtbModel::edit($id);
+            $r = AuxiliarCtbModel::show_row($id);            
             echo json_encode($r, JSON_UNESCAPED_UNICODE);
         }
     }

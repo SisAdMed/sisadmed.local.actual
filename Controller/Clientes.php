@@ -70,8 +70,7 @@ class Clientes extends Controller
             $id = intval(limpiar($id));
             if ($id > 0) {
                 $r = ClientesModel::edit($id);
-                if (empty($r)) {
-                    Alertas::new('El registro no existe', 'warning');
+                if (empty($r)) {                    
                     header('Location:' . base_url . '/Clientes');
                 }
                 $this->views->getView($this, "edit", [
@@ -84,8 +83,7 @@ class Clientes extends Controller
                 header('Location:' . base_url . '/Clientes');
             }
             return;
-        }
-        Alertas::new('No tiene permiso para realizar esta acción', 'warning');
+        }        
         header('Location:' . base_url . '/Clientes');
     }
     public function consulta_vend()
@@ -240,6 +238,8 @@ class Clientes extends Controller
             }
             //Valdiar si tiene imagen
             $view_internet = (isset($internet) && !empty($internet)) ? 1 : 0;
+            //Cambiar Cliente en caso de ser cotización y Generico
+            $cambiar_cliente = isset($cambiar_cliente) ? 1 : 0;
             try {
                 $data += [
                     'tip_ent' => limpiar($tip_ent),
@@ -267,7 +267,8 @@ class Clientes extends Controller
                     'id_por_ret_iva' => (isset($id_por_ret_iva) && $id_por_ret_iva > 0) ? $id_por_ret_iva : null,
                     'cant_dec' => (!empty($cant_dec) && $cant_dec > 0) ? $cant_dec : 4,
                     'view_internet' => $view_internet,
-                    'url' => $url ?? '',                    
+                    'url' => $url ?? '',         
+                    'cambiar_cliente' => $cambiar_cliente
                 ];
                 //Si el usuarios es administrador
                 if ($_SESSION['administrator'] == 1) {
@@ -282,13 +283,11 @@ class Clientes extends Controller
                 if (empty($_POST['id'])) {
                     $id = ClientesModel::guardar($data);
                     $id_ent_con = $id;
-                    $title = "Registro se ha agregado satisfactoriamente";
-                    Alertas::new(sprintf('El cliente %s se ha creado exitosamente con el id %s', $data['nom_ent'], $id));
+                    $title = "Registro se ha agregado satisfactoriamente";                    
                 } else {
                     $id_upd = ClientesModel::actualizar($id, $data);
                     $id_ent_con = $id;
-                    $title = "Registro se ha actualizado satisfactoriamente";
-                    Alertas::new(sprintf('El cliente %s se ha modificado exitosamente con el id %s', $data['nom_ent'], $id_ent_con));
+                    $title = "Registro se ha actualizado satisfactoriamente";                    
                 }
                 //Guardar detalles de contactos
                 $data_det_cont = array();

@@ -10,7 +10,7 @@
             </div>
             <div class="modal-body">
                 <div class="form-group col-md-12 col-sm-12 col-xs-12" id="listar_CuentasCtb_modal" name="listar_CuentasCtb_modal">
-                    <table id="tblModal_cuentasCTB" name="tblModal_cuentasCTB" class="display responsive nowrap table table-hover" style="width:100%">
+                    <table id="tblModal_cuentasCTB" name="tblModal_cuentasCTB" class="display compact responsive nowrap table table-hover" style="width:100%">
                          <thead>
                             <tr>
                                 <th>Id</th>

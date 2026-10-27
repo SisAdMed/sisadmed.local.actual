@@ -78,13 +78,13 @@ class PurInv extends Controller{
         if (Permisos::read()) {
             $id = intval(limpiar($id));
             if ($id > 0) {
-                $r = PurInvModel::edit($id);
+                $r = PurInvModel::edit($id);                
                 if (empty($r)) {
                     Alertas::new('El registro no existe', 'warning');
                     header('Location:' . base_url . '/PurInv?ori=' . $_SESSION['ori']);
                 }                
                 $this->views->getView($this, "edit", [
-                    'page_name' => "Editando el documento Número " ,
+                    'page_name' => "Editando el documento " . $_SESSION['page_name'] . " Número " . $r['num_tdo'],
                     'function_js' => "PurInv.js?v=" . SITE_VERSION,
                     'function_js_mod' => "COMFun.js?v=" . SITE_VERSION,
                     'r' => to_obj($r)
@@ -197,19 +197,18 @@ class PurInv extends Controller{
     public function print_Retiva(int $id){
         if (Permisos::read()) {
             $id = intval(limpiar($id));
-            if ($id > 0) {
-                $r = PurInvModel::print_retiva_enca($id, 'O');
-                $d = PurInvModel::print_retiva_deta($id, 'O');
-                if (empty($r)) {
-                    Alertas::new('El registro no existe', 'warning');
-                    header('Location:' . base_url . '/PurInv');
+            if ($id > 0) {                
+                $r = PurInvModel::print_retiva_enca($id, 'P');
+                $d = PurInvModel::print_retiva_deta($id, 'P');                
+                if (empty($r)) {                    
+                    header('Location:' . base_url . '/PurInv?ori=' . $_SESSION['ori']);
                 }
                 $this->views->getView($this, "print_RetIva", [
                     'r' => to_obj($r),
                     'd' => to_obj($d),
                 ]);
             } else {
-                header('Location:' . base_url . '/PurInv');
+                //header('Location:' . base_url . '/PurInv?ori=' . $_SESSION['ori']);
             }
             return;
         }

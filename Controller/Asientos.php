@@ -13,16 +13,16 @@ class Asientos extends Controller {
 
         $this->views->getView($this, "index", [
             'page_name' => "Asientos contables",
-            'function_js' => "Asientos.js",
-            'function_js_mod' => "CTBFun.js",
+            'function_js' => "Asientos.js?v=" . SITE_VERSION,
+            'function_js_mod' => "CTBFun.js?v=" . SITE_VERSION,
             'objeto' => to_obj($objeto)
         ]);
     }
     public function nuevo(){
         $this->views->getView($this, "nuevo", [
             'page_name' => "Nuevo Asientos contables",
-            'function_js' => "Asientos.js",
-            'function_js_mod' => "CTBFun.js",
+            'function_js' => "Asientos.js?v=" . SITE_VERSION,
+            'function_js_mod' => "CTBFun.js?v=". SITE_VERSION,
         ]);
     }
     public function edit($id){
@@ -37,8 +37,8 @@ class Asientos extends Controller {
                 //mostrar registro
                 $this->views->getView($this, "edit", [
                     'page_name' => "Editando el registro " . $r['num_comp'],
-                    'function_js' => "Asientos.js",
-                    'function_js_mod' => "CTBFun.js",
+                    'function_js' => "Asientos.js?v=" . SITE_VERSION,
+                    'function_js_mod' => "CTBFun.js?v=" . SITE_VERSION,
                     'r' => to_obj($r)
                 ]);
             } else {

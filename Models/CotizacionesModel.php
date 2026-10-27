@@ -48,7 +48,7 @@ class CotizacionesModel extends DB{
         return $r[0];
     }
     static function printer_cotiza($id_cot){
-        $sql = "SELECT em.nombre_emp, em.rif_empresa, em.dir_emp ,em.tel_emp, em.email_emp, c.num_tdo, tdo.nom_tdoc, c.fecha_comp, en.nom_ent, en.rif_ent, en.dir_ent, en.postal_ent, pa.nombre_pais, es.nombre_edo, ci.nombre_ciudad, ve.nom_vend, ve.ape_vend, pro.cod_prod, pro.cod2_prod, pro.nom_prod, dc.iva_prod, dc.can_det, (dc.sub_total / dc.can_det)pre_vta, dc.sub_total, c.id_cot, em.logo, moc.codigo_moneda, moe.codigo_moneda, c.tasa_cambio, fab.nom_fab, pro.ref_prod, (SELECT IFNULL(f4010.fec_ven,'') FROM f4010 WHERE f4010.id_prod = pro.id_prod LIMIT 1) AS fec_ven, fc.note_pre, tdo.nom_tdoc, pro.lote_prod, IFNULL(cre.des_diascre,' ') AS des_diascre, IFNULL(c.observa,'') AS observa, fab_fac.nom_fab AS nom_fab_fac, em.id_moneda moneda_emp FROM f4008 c INNER JOIN f6001 tdo ON tdo.id_tdoc = c.id_tdo INNER JOIN f40081 dc ON dc.id_cot = c.id_cot INNER JOIN f0011 em ON em.id_emp = c.id_emp INNER JOIN f0014 en ON en.id_ent = c.id_cli INNER JOIN f0004 pa ON pa.id_pais = en.id_pais INNER JOIN f00041 es ON es.id_edo = en.id_edo INNER JOIN f00042 ci ON ci.id_ciudad = en.id_ciudad INNER JOIN f0016 ve ON ve.id_vend = en.id_vend INNER JOIN f4005 pro ON pro.id_prod = dc.id_prod INNER JOIN f0005 moc ON moc.id_moneda = c.id_moneda INNER JOIN f0005 moe ON moe.id_moneda = em.id_moneda INNER JOIN f4003 fab ON fab.id_fab = pro.id_fab INNER JOIN f4999 fc ON fc.id_emp = c.id_emp AND fc.id_tdoc_pre = c.id_tdo LEFT OUTER JOIN f6005 cre ON cre.id_diascre = en.id_diascre LEFT OUTER JOIN f4003 fab_fac ON fab_fac.id_fab = pro.id_fab_fac WHERE c.id_cot = {$id_cot}";
+        $sql = "SELECT em.nombre_emp, em.rif_empresa, em.dir_emp ,em.tel_emp, em.email_emp, c.num_tdo, tdo.nom_tdoc, c.fecha_comp, en.nom_ent, en.rif_ent, en.dir_ent, en.postal_ent, pa.nombre_pais, es.nombre_edo, ci.nombre_ciudad, ve.nom_vend, ve.ape_vend, pro.cod_prod, pro.cod2_prod, pro.nom_prod, dc.iva_prod, dc.can_det, (dc.sub_total / dc.can_det)pre_vta, dc.sub_total, c.id_cot, em.logo, moc.codigo_moneda moneda_cotiza, moe.codigo_moneda, c.tasa_cambio, fab.nom_fab, pro.ref_prod, (SELECT IFNULL(f4010.fec_ven,'') FROM f4010 WHERE f4010.id_prod = pro.id_prod LIMIT 1) AS fec_ven, fc.note_pre, tdo.nom_tdoc, pro.lote_prod, IFNULL(cre.des_diascre,' ') AS des_diascre, IFNULL(c.observa,'') AS observa, fab_fac.nom_fab AS nom_fab_fac, em.id_moneda moneda_emp FROM f4008 c INNER JOIN f6001 tdo ON tdo.id_tdoc = c.id_tdo INNER JOIN f40081 dc ON dc.id_cot = c.id_cot INNER JOIN f0011 em ON em.id_emp = c.id_emp INNER JOIN f0014 en ON en.id_ent = c.id_cli INNER JOIN f0004 pa ON pa.id_pais = en.id_pais INNER JOIN f00041 es ON es.id_edo = en.id_edo INNER JOIN f00042 ci ON ci.id_ciudad = en.id_ciudad INNER JOIN f0016 ve ON ve.id_vend = en.id_vend INNER JOIN f4005 pro ON pro.id_prod = dc.id_prod INNER JOIN f0005 moc ON moc.id_moneda = c.id_moneda INNER JOIN f0005 moe ON moe.id_moneda = em.id_moneda INNER JOIN f4003 fab ON fab.id_fab = pro.id_fab INNER JOIN f4999 fc ON fc.id_emp = c.id_emp AND fc.id_tdoc_pre = c.id_tdo LEFT OUTER JOIN f6005 cre ON cre.id_diascre = en.id_diascre LEFT OUTER JOIN f4003 fab_fac ON fab_fac.id_fab = pro.id_fab_fac WHERE c.id_cot = {$id_cot}";
         $r = DB::query($sql);
         return $r;
     }
@@ -56,19 +56,96 @@ class CotizacionesModel extends DB{
         $r = DB::query("UPDATE f4008 SET status = 0 WHERE id_cot = {$id} AND id_cont IS NULL");
         return $r;
     }
-    static function create_express($id_fab, $id_ent){ 
-        $fecha = Date('Y-m-d');
-        $x = DB::query("SELECT GROUP_CONCAT(id_alm) id_alm FROM f4999;");
-        $id_alm = $x[0]['id_alm'];
-        //$sql = "SELECT a.*, ventas_prod / (SELECT IFNULL(y.adic_01,1) adic_01 FROM f0014 x INNER JOIN f0012a y ON y.id_motcam = x.id_motcam WHERE x.id_ent = {$id_ent}) pv1 FROM f4005 a WHERE a.id_fab IN ($id_fab) AND EXISTS (SELECT id_prod FROM f4010 WHERE id_prod = a.id_prod)";
-        $sql = "SELECT a.id_prod, a.nom_prod, a.uni_ven_prod, a.iva_prod, a.ventas_prod / (SELECT IFNULL(y.adic_01,1) adic_01 FROM f0014 x INNER JOIN f0012a y ON y.id_motcam = x.id_motcam WHERE x.id_ent = {$id_ent}) pv1, fn_saldo_ant_inv(0, a.id_prod, '$id_alm',  '$fecha', 0) stock FROM f4005 a WHERE a.id_fab IN ($id_fab) AND a.status = 1 AND fn_saldo_ant_inv(0, a.id_prod, '$id_alm', '$fecha', 0) > 0 ORDER BY a.nom_prod";           
-        $r = DB::query($sql);
-        return $r;
-    }
-
     //Llenar listado entidad modal
     static function listar_entidad_modal($id, $tipo){
         $r = DB::query("SELECT a.id_ent id_ent, a.rif_ent rif_ent, a.nom_ent nom_ent, b.nom_vend nom_vend, c.nombre_zona, a.handling_conver FROM f0014 a INNER JOIN f0016 b ON b.id_vend = a.id_vend INNER JOIN f0003 c ON c.id_zona = a.id_zona WHERE a.status = 1 AND id_emp = {$id} AND tip_ent = '".$tipo."'");
         return $r;
+    }
+    static function create_express( $id_fab, int $id_ent, int $id_emp, $tasa, $fecha_comp, int $id_moneda, int $only_sotck){ 
+        $fecha = Date('Y-m-d');
+        $x = DB::query("SELECT GROUP_CONCAT(id_alm) id_alm FROM f4999;");
+        $id_alm = $x[0]['id_alm'];        
+        
+        $db = new Conexion(); //Obtener la instancia del PDO
+        $link = (object)$db->conect();
+        try {            
+            
+            // 1. IMPORTANTE: Agregamos a.id_fab en el SELECT para poder usarlo en las validaciones de descuento
+            $sql = "SELECT a.id_prod, a.nom_prod, a.id_fab, 1 cant_det, fn_saldo_ant_inv(0, a.id_prod, '$id_alm', '$fecha', 0) stock, a.uni_ven_prod, (a.ventas_prod / a.uni_ven_prod) ventas_prod, a.ventas_prod ventas_prod1, CASE WHEN a.iva_prod = 1 THEN 'S' ELSE 'N' END iva_prod, a.ventas_prod total, b.nom_fab, a.ref_prod, a.cod_prod, IFNULL(b.adicional01, 0) noadic FROM f4005 a INNER JOIN f4003 b ON b.id_fab = a.id_fab WHERE a.id_fab IN($id_fab) AND a.status = 1 AND CASE WHEN $only_sotck = 1 THEN fn_saldo_ant_inv(0, a.id_prod, '$id_alm', '$fecha', 0) > 0 ELSE true END ORDER BY a.nom_prod";            
+            
+            $stmt = $link->prepare($sql);                
+            $stmt->execute();            
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();            
+            
+            //Descuentos adicionales por fabricante
+            $sql = "SELECT b.id_fab, b.adicional FROM f0014 a INNER JOIN f0012a1 b ON b.id_motcam = a.id_motcam WHERE a.id_ent = :id_ent";
+            $stmt_desc_fab = $link->prepare($sql); 
+            $stmt_desc_fab->execute([':id_ent' => $id_ent]);
+            $rows_desc_fab = $stmt_desc_fab->fetchAll(PDO::FETCH_ASSOC);
+            
+            //Tasas de cambio
+            $sql = "SELECT * FROM f0006 p INNER JOIN f0011 e ON e.id_emp = p.id_emp WHERE p.id_emp = :id_emp AND fecha_precio <= :fecha_precio ORDER BY fecha_precio DESC LIMIT 1";            
+            $stmt_adic_01 = $link->prepare($sql);
+            $stmt_adic_01->execute([':id_emp' => $id_emp, ':fecha_precio' => $fecha_comp]);
+            $rows_adic_01 = $stmt_adic_01->fetch(PDO::FETCH_ASSOC);
+            $stmt_adic_01->closeCursor();                
+                        
+            //Descuentos adicionales por cliente
+            $sql = "SELECT m.adic_01, m.adic_02 FROM f0014 e INNER JOIN f0012a m ON m.id_motcam = e.id_motcam WHERE e.id_ent = :id_ent LIMIT 1";            
+            $stmt_adic_02 = $link->prepare($sql);            
+            $stmt_adic_02->execute([':id_ent' => $id_ent]);
+            $rows_adic_02 = $stmt_adic_02->fetch(PDO::FETCH_ASSOC);            
+            $stmt_adic_02->closeCursor();
+
+            // 2. USAMOS REFENCIA (&) EN $row PARA MODIFICAR EL ARRAY ORIGINAL
+            foreach($rows as &$row){
+                // Descuentos adicionales por fabricante
+                if($row['noadic'] == 0 && $id_ent){                        
+                    $xid_fab = $row['id_fab']; // Corregido de $rows a $row
+                    foreach($rows_desc_fab as $fab){
+                        if($xid_fab == $fab['id_fab'] && $fab['adicional'] > 0){
+                            $row['ventas_prod1'] = $row['ventas_prod1'] / $fab['adicional']; // Ajustado a la clave correcta
+                            $row['total'] = $row['ventas_prod1'];
+                        }
+                    }
+                }
+                // Datos de Empresa y Tasas de Cambio
+                if($row['noadic'] && $rows_adic_01 && $rows_adic_01['tasa'] > 0 && $rows_adic_01['id_moneda'] == $id_moneda){
+                    $row['ventas_prod1'] = $row['ventas_prod1'] / $rows_adic_01['tasa'];
+                    $row['total'] = $row['ventas_prod1'];
+                }
+                // Descuentos adicionales por cliente
+                if($rows_adic_02){                    
+                    if($row['noadic'] === 0 || $row['noadic'] == "0"){                        
+                        if($rows_adic_02['adic_01'] > 0){                            
+                            $row['ventas_prod1'] = $row['ventas_prod1'] / $rows_adic_02['adic_01'];      
+                            $row['total'] = $row['ventas_prod1'];                      
+                        }
+                        if($rows_adic_02['adic_02'] > 0){
+                            $row['ventas_prod1'] = $row['ventas_prod1'] / $rows_adic_02['adic_02'];
+                            $row['total'] = $row['ventas_prod1'];
+                        }
+                    }
+                }
+                // Aplicar tasa de cambio final si las monedas coinciden
+                if($rows_adic_01 && isset($rows_adic_01['id_moneda']) && $rows_adic_01['id_moneda'] == $id_moneda){
+                    $xTasa = CambiosModel::rateExchange($rows_adic_01['id_moneda'], $fecha_comp);
+                    $row['ventas_prod1'] = $row['ventas_prod1'] * $xTasa;
+                    $row['total'] = $row['ventas_prod1'];
+                }
+            }
+            unset($row); // Rompemos la referencia por buenas prácticas de PHP
+            
+            return $rows;
+            
+        } catch (\PDOException $e) {                
+            return [
+                "success" => false,
+                "title" => 'Se ha presentado un error',
+                "icon" => 'error',
+                "msg" => sprintf('Se ha presentado el error %s al guardar la %s, por favor verifique.', $e->getMessage(), $_SESSION['page_name'])
+            ];
+        }        
     }
 }

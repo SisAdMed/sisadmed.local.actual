@@ -73,7 +73,7 @@
         $cadena = iconv("UTF-8", "ISO-8859-1", html_entity_decode($r[$i]->nom_bancon));
         $pdf->cell(15, 3, $r[$i]->cod_bancon, 0, 0,'L');
         $pdf->cell(10, 3, ($cadena), 0, 0,'L');
-        $monto = $r[$i]->monto_for;
+        $monto = (!empty($r[$i]->monto_for) && $r[$i]->monto_for > 0) ? $r[$i]->monto_for : $r[$i]->monto_nac;
         if($r[$i]->cod_aux){            
             $pdf->Cell(35);
             $pdf->cell(80, 3, htmlentities($r[$i]->cod_aux . ' - ' . $r[$i]->nombre_aux), 0, 0,'L');
@@ -120,18 +120,18 @@
         $pdf->MultiCell(150, 3, $cadena, 0, 'C');
         $pdf->Ln(5);
         $pdf->SetFont('Arial', 'B', $tman_letra);
-        $pdf->Cell(20, 3, 'Item', 0, 0, 'C');
-        $pdf->Cell(10, 3, 'Tipo' , 0, 0, 'R'); 
+        $pdf->Cell(12, 3, 'Item', 0, 0, 'R');
+        $pdf->Cell(10, 3, 'Tipo' , 0, 0, 'L'); 
         $cadena = iconv("UTF-8", "ISO-8859-1", 'Descripción');
-        $pdf->Cell(40, 3, $cadena , 0, 0, 'C');
+        $pdf->Cell(50, 3, $cadena , 0, 0, 'L');
         $cadena = iconv("UTF-8", "ISO-8859-1", 'Número');
-        $pdf->Cell(40, 3, $cadena, 0, 0, 'C');
-        $pdf->Cell(20, 3, 'Monto', 0, $efe_bantmo == 'C' ? 0: 1, 'C');
+        $pdf->Cell(40, 3, $cadena, 0, 0, 'R');
+        $pdf->Cell(20, 3, 'Monto', 0, $efe_bantmo == 'C' ? 0: 1, 'R');
         if($efe_bantmo == 'C'){
             $cadena = iconv("UTF-8", "ISO-8859-1", 'Retención');
-            $pdf->Cell(20, 3, $cadena, 0, 0, 'C');
+            $pdf->Cell(20, 3, $cadena, 0, 0, 'R');
             $cadena = iconv("UTF-8", "ISO-8859-1", 'Número Retención');
-            $pdf->Cell(20, 3, $cadena, 0, 1, 'C');
+            $pdf->Cell(20, 3, $cadena, 0, 1, 'R');
         }
         $pdf->SetFont('Arial', '', $tman_letra);
         $pdf->Ln(2);
@@ -139,22 +139,22 @@
         $mon_ret = 0;
         $total_rows = count($doc_can);        
         for($i= 0;$i<count($doc_can);$i++){
-            $pdf->Cell(20, 3, $doc_can[$i]['item'] , 0, 0, 'C');
-            $pdf->Cell(10, 3, $doc_can[$i]['tipo_codigo'] , 0, 0, 'C');
-            $pdf->Cell(40, 3, $doc_can[$i]['nom_tdoc'] , 0, 0, 'R');
-            $pdf->Cell(40, 3, $doc_can[$i]['num_tdo'] , 0, 0, 'C');
+            $pdf->Cell(12, 3, $doc_can[$i]['item'] , 0, 0, 'R');
+            $pdf->Cell(10, 3, $doc_can[$i]['tipo_codigo'] , 0, 0, 'L');
+            $pdf->Cell(50, 3, $doc_can[$i]['nom_tdoc'] , 0, 0, 'L');
+            $pdf->Cell(40, 3, $doc_can[$i]['num_tdo'] , 0, 0, 'R');
             if($i == ($total_rows-1)){
                 $pdf->SetFont('Arial', 'U', $tman_letra);
             }
-            $pdf->Cell(20, 3, number_format($doc_can[$i]['mon_can'] ,2,",", "."), 0, 0, 'C');
+            $pdf->Cell(20, 3, number_format($doc_can[$i]['mon_can'] ,2,",", "."), 0, 0, 'R');
             if($efe_bantmo == 'C'){
-                $pdf->Cell(20, 3, number_format($doc_can[$i]['mon_ret'] ?? 0 ,2,",", "."), 0, 0, 'C');
+                $pdf->Cell(20, 3, number_format($doc_can[$i]['mon_ret'] ?? 0 ,2,",", "."), 0, 0, 'R');
                 $pdf->SetFont('Arial', '', $tman_letra);
-                $pdf->Cell(20, 3, $doc_can[$i]['num_ret'], 0, 1, 'C');
+                $pdf->Cell(20, 3, $doc_can[$i]['num_ret'], 0, 1, 'R');
                 //Acumulador
                 $mon_ret +=$doc_can[$i]['mon_ret'] ?? 0;
             }else{
-                $pdf->Cell(20, 3, '', 0, 1, 'C');
+                $pdf->Cell(20, 3, '', 0, 1, 'R');
             }
             
             //Acumulador
@@ -163,15 +163,15 @@
         }
         $pdf->SetFont('Arial', 'BU', $tman_letra);
         $pdf->Ln(3);
+        $pdf->Cell(12, 3, '', 0, 0, 'R');
         $pdf->Cell(20, 3, '', 0, 0, 'C');
-        $pdf->Cell(10, 3, '', 0, 0, 'C');
         $pdf->Cell(40, 3, '' , 0, 0, 'R');
         $pdf->Cell(40, 3, '', 0, 0, 'C');
-        $pdf->Cell(20, 3, number_format($mon_doc ,2,",", "."), 0, 0, 'C');
+        $pdf->Cell(20, 3, number_format($mon_doc ,2,",", "."), 0, 0, 'R');
         if($efe_bantmo == 'C'){
-            $pdf->Cell(20, 3, number_format($mon_ret ,2,",", "."), 0, 0, 'C');
+            $pdf->Cell(20, 3, number_format($mon_ret ,2,",", "."), 0, 0, 'R');
         }
-        $pdf->Cell(20, 3, '', 0, 1, 'C');
+        $pdf->Cell(20, 3, '', 0, 1, 'R');
         $pdf->SetFont('Arial', '', $tman_letra);
     }
     //Emitido por:

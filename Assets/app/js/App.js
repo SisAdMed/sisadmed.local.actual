@@ -350,11 +350,6 @@ $(document).ready(async function () {
 	//anElement1 = new AutoNumeric('#tasa_cambio', AutoConfigTasaCambio);
 	$(".foranea").hide();
 	$(".local").hide();
-	if (efe_bantmo == "C") {
-		nom_table = "";
-	} else {
-		nom_table = "tblSeatDetail_cxp";
-	}
 });
 //Obtener el primer dia del mes
 function getFirstDateofMonth(xDate = Date()) {
@@ -793,7 +788,7 @@ async function listar_estados(id_pais, id_edo) {
 	try {
 		if (id_pais) {
 			datos.append("id_pais", id_pais);
-			let url = `${base_url}/Clientes/listar_estados`;
+			url = `${base_url}/Clientes/listar_estados`;
 			let resp = await fetch(url, {
 				method: "POST",
 				body: datos,
@@ -1467,7 +1462,7 @@ async function listar_aux_ctbles(id = 0, tag, usa = true, mod = "1") {
 	const datos = new FormData();
 	//datos.append('id_emp', id_emp);
 	datos.append("mod", mod);
-	let url = "";
+	url = "";
 	try {
 		if (mod == "1") {
 			url = `${base_url}/AuxiliarCtb/listar_aux_ctbles`;
@@ -4043,10 +4038,20 @@ $("body").on("click", "#tblModalProveedor tr", function () {
 	$("#modal-Proveedores").modal("hide");
 });
 //Seleccionar registro marcado del Modal de clietnes y mostrarlo en el formulario
-$("body").on("click", "#tblModalClientes tr", function () {
-	id_cli = $(this).attr("id");
+$("body").on("click", "#tblModalClientes tr", function (e) {
+	e.preventDefault();
+	var table = $("#tblModalClientes").DataTable();
+	var data = table.row(this).data(); // Obtiene el array de la fila clickeada
+	if (!data) return;
+
+	var id_cli = data["id_ent"];
+	var nom_cli = data["nom_ent"];
+	
 	$("#id_cli").val(id_cli);
+	$("#nom_cli").val(nom_cli);
 	$("#id_cli").trigger("change");
+
+
 	$("#modal-clientes").modal("hide");
 });
 
@@ -4323,7 +4328,7 @@ var xAdditional02 = async function (id_cli) {
 	}
 };
 function showrowupdate_fac(id, tipo = '') {
-	let url, ttipo;
+	url, ttipo;
 	onlyread = "";
 	if (tipo == "P") {
 		url = `${base_url}/Cotizaciones/consultar_cotizacion`;
@@ -4942,60 +4947,75 @@ $(document).on("click", ".nom_con", function (e) {
 	const url = `${base_url}/BanConceptos/listar_conceptos`;
 	$.ajax({
 		url: url,
-		datatype: "json",
-		dataSrc: "",
+		dataType: "json",
 		type: "POST",
 		success: function (response) {
-			response_new = JSON.parse(response);
-			$("#tblModal_BanConceptos").DataTable().clear();
-			$("#tblModal_BanConceptos").DataTable().destroy();
-			var tblModal_BanConceptos = new DataTable(
-				"#tblModal_BanConceptos",
-				{
-					aProcessing: true,
-					aServerSide: true,
-					columnDefs: [
-						{
-							targets: 0,
-							visible: false,
-							searchable: false,
-						},
-					],
-					fnCreatedRow: function (rowEl, response_new) {
-						$(rowEl).attr("id", response_new[0]);
+			response_new = response
+			// Destruir instancia anterior si existe para evitar conflictos
+			if ($.fn.DataTable.isDataTable('#tblModal_BanConceptos')) {
+				$("#tblModal_BanConceptos").DataTable().clear().destroy();
+			}
+			var tblModal_BanConceptos = $("#tblModal_BanConceptos").DataTable({
+				processing: true,
+				ServerSide: true,
+				data: response_new,
+				columns: [
+					{ data: "id_bancon" },   // Columna 0: ID (Oculta)
+					{ data: "cod_bancon" },  // Columna 1: Código
+					{ data: "nom_bancon" },  // Columna 2: Nombre
+					{ data: "aux_cta" }      // Columna 3: Indicador de Auxiliar (Lo ocultamos abajo)
+				],
+				columnDefs: [
+					{
+						targets: 0,
+						visible: false,
+						searchable: false,
 					},
-					order: [[1, "asc"]],
-					language: {
-						url: `${base_url}/Assets/json/es-ES.json`,
-					},
-				}
-			);
-			response_new.forEach(function (e) {
-				tblModal_BanConceptos.row
-					.add([e.id_bancon, e.cod_bancon, e.nom_bancon])
-					.draw();
+				],
+				order: [[1, "asc"]],
+				language: {
+					url: `${base_url}/Assets/json/es-ES.json`,
+				},
 			});
 			$("#modal-BanConceptos").modal("show");
 		},
-		fail: function (error) {
+		error: function (error) { // Nota: corregido "fail" por "error" en jQuery AJAX
 			console.log(error);
 		},
 	});
 });
 //Seleccionar registro marcado del Modal de Conceptos Bancarios y mostrarlo en el formulario
-$("body").on("click", "#tblModal_BanConceptos tr", function () {
-	id_bancon = $(this).attr("id");
-	if (item) {
-		$("#id_bancon" + item).val(id_bancon);
-		$(".id_bancon").trigger("change");
-	} else {
-		$("#id_bancon").val(id_bancon);
-		$("#id_bancon").trigger("change");
-		//
-	}
+$("body").on("click", "#tblModal_BanConceptos tr", function (e) {
+	e.preventDefault();
+	var table = $("#tblModal_BanConceptos").DataTable();
+	var data = table.row(this).data(); // Obtiene el array de la fila clickeada
+
+	if (!data) return;
+
+	// Capturas los valores según el orden en que los agregaste a la fila
+	var id_bancon = data["id_bancon"]; // ID
+	var cod_bancon = data["cod_bancon"]; // Código
+	var nom_bancon = cod_bancon + " - " + data["nom_bancon"]; // Nombre
+	var aux_cta = data["aux_cta"]; // Indicador de Auxiliar (1 o 0)
+
+	// Recuperamos el ítem de la fila principal que abrió el modal
+	var item = $("#modal-BanConceptos").attr("data-current-item");
+
+	// Seteamos en el formulario principal
+	$(`#id_bancon${item}`).val(id_bancon);	
+	$(`#nom_con${item}`).val(nom_bancon);
+
+	// Validación del auxiliar...
+    if (aux_cta == "S" ) {
+        $(`#div_aux${item}`).show();        
+    } else {
+        $(`#id_aux${item}`).val('');
+        $(`#nom_aux${item}`).val('');
+        $(`#div_aux${item}`).hide();        
+    }
+
+	// 5. Cerramos el modal
 	$("#modal-BanConceptos").modal("hide");
-	$("#tblModal_BanConceptos").DataTable().clear();
-	$("#tblModal_BanConceptos").DataTable().destroy();
 });
 //Busqueda de Concepto Bancario
 var nom_con_ban = async function (id_bancon) {
@@ -5250,7 +5270,7 @@ function mostar_almacens_modal() {
 }
 //Modal para buscar Ubicaciones
 function mostrar_ubicaciones_modal() {
-	let url = "";
+	url = "";
 	let datos = new FormData();
 	url = `${base_url}/Ubicaciones/listar_ubicaciones`;
 
@@ -5592,7 +5612,7 @@ $(".select-language").select2({
 });
 //Para validar si esta bloqueado o no el Proceso de Facturación y Cotizaciones
 $(document).on("click", ".new_row", async function () {
-	let url = `${base_url}/ConfigFAC/val_fact`;
+	url = `${base_url}/ConfigFAC/val_fact`;
 	let ruta = "";
 	let texto = "";
 	if (tipo_fac == "P") {
@@ -6018,197 +6038,6 @@ function formatoMoneda(valor) {
 	}
 	return parseFloat(valor.replace(/\./g, "").replace(",", "."));
 }
-//Mostar los Documentos pendientes de Cuentas por Cobrar, tanto desde Banco Movimientos como desde Movimientos de Cuenas por Cobrar. José Vargas 28-08-2025 a las 10:10:00
-$("#modal_doc_pen_cxc").on("show.bs.modal", function () {
-	var url = "";
-	fecha_comp = $("#fecha_comp").val();
-	id_moneda = $("#id_moneda").val();
-	if (efe_bantmo == "C") {
-		tabla_name = "#tblSeatDetail";
-		url = `${base_url}/CXCDocument/doc_ped_cli`;
-		datos = {
-			id_emp: id_emp,
-			id_cli: id_cli,
-			fecha_comp: fecha_comp,
-			id_moneda: id_moneda,
-		};
-	} else {
-		tabla_name = "#tblSeatDetail_cxp";
-		url = `${base_url}/CXPDocument/doc_ped_cli`;
-		datos = {
-			id_emp: id_emp,
-			id_cli: id_ent,
-			fecha_comp: fecha_comp,
-			id_moneda: id_moneda,
-		};
-	}
-
-	$.ajax({
-		url: url,
-		method: "POST",
-		data: datos,
-		dataType: "json",
-		beforeSend: function () {
-			$(".loader").show();
-		},
-		success: function (data) {
-			$("#tblModalDocPend_cxc").DataTable({
-				destroy: true,
-				data: data,
-				responsive: true,
-				processing: true,
-				columns: [
-					{ data: "id_doc", title: "Id" },
-					{ data: "tipo_codigo", title: "Código" },
-					{ data: "nom_tdoc", title: "Descripción" },
-					{
-						data: "num_tdo",
-						title: "Número",
-						className: "text-right",
-					},
-					{
-						data: "nro_control",
-						title: "Control",
-						className: "text-right",
-					},
-					{
-						data: "fecha_comp",
-						render: $.fn.dataTable.render.moment(
-							FROM_PATTERN,
-							TO_PATTERN
-						),
-						title: "Fecha Emi.",
-					},
-					{
-						data: "fecha_venci",
-						render: $.fn.dataTable.render.moment(
-							FROM_PATTERN,
-							TO_PATTERN
-						),
-						title: "Fecha Venc.",
-					},
-					{
-						data: "codigo_moneda",
-						title: "Moneda",
-						className: "text-center",
-					},
-					{
-						data: "tasa_cambio",
-						className: "text-right",
-						render: DataTable.render.number(".", ",", 8),
-						title: "Tasa Cambio",
-					},
-					{
-						data: null,
-						className: "text-right",
-						title: "Monto Doc.",
-						render: function (data, type, row) {
-							if (id_moneda == id_moneda_cia) {
-								return `${format_number_with_dec_new(
-									row.mon_doc_dom,
-									2
-								)}`;
-							} else {
-								return `${format_number_with_dec_new(
-									row.mon_doc_for,
-									2
-								)}`;
-							}
-						},
-					},
-					{
-						data: null,
-						className: "text-right",
-						title: "Saldo Doc.",
-						render: function (data, type, row) {
-							if (id_moneda == id_moneda_cia) {
-								return `${format_number_with_dec_new(
-									row.sal_doc_dom,
-									2
-								)}`;
-							} else {
-								return `${format_number_with_dec_new(
-									row.sal_doc_for,
-									2
-								)}`;
-							}
-						},
-					},
-				],
-				language: {
-					url: `${base_url}/Assets/json/es-ES.json`,
-				},
-			});
-		},
-		complete: function () {
-			$(".loader").hide();
-		},
-		error: function (error) {
-			$(".loader").hide();
-			console.log("Error al cargar los datos: ");
-		},
-	});
-});
-//Al seleccionar un registro de un documento a cancelar, tanto desde banco Movimitnos, como desde Cuentas por Cobrar Movimientos. José Vargas 28-08-2025 a las 120:19:00
-$("body").on("click", "#tblModalDocPend_cxc tr", function () {
-	try {
-		item_doc++;
-		var row_select = $(this).closest("tr");
-		var adicional = "";
-		var datosFila = row_select
-			.find("td")
-			.map(function () {
-				return $(this).text();
-			})
-			.get();
-		if (efe_bantmo == "C") {
-			nom_table = "tblSeatDetail";
-			adicional = `<td class='text-right'><input type="text" id="mon_ret${item_doc}" name="mon_ret[]" class="form-control text-right text-xs fila-input-ret " readonly></td>
-            <td class='text-right'><input type="text" id="num_ret${item_doc}" name="num_ret[]" class="form-control text-right text-xs fila-input-num" value="" readonly/></td>`;
-		} else {
-			nom_table = "tblSeatDetail_cxp";
-		}
-
-		var tr = '<tr id="fila' + item_doc + '">';
-		var htmlTags = $(tr).append(`
-            <td class='text-right'><input type="text" id="id_cot${datosFila[0]}" name="id_cot[]" class="form-control text-right text-xs rid_cot" value="${datosFila[0]}" readonly/>'</td>
-            <td class='text-right'>${item_doc}</td>
-            <td class='text-center'>${datosFila[1]}</td>
-            <td>${datosFila[2]}</td>
-            <td class='text-right'>${datosFila[3]}</td>
-            <td class='text-center'>${datosFila[5]}</td>
-            <td class='text-center'>${datosFila[6]}</td>
-            <td class='text-center'><input type="text" id="id_moneda_doc${item_doc}" name="id_moneda_doc[]" class="form-control text-center text-xs" value="${datosFila[7]}" readonly/></td>
-            <td class='text-right'>${format_number_with_dec_new(formatoMoneda(datosFila[8]), 4)}</td>
-            <td class='text-right'>${datosFila[9]}</td>
-			<td class='text-right'><input type="text" id="sal_doc${item_doc}" name="sal_doc[]" class="form-control text-right text-xs sal_doc" readonly value="${datosFila[10]}"/></td>
-            <td class='text-right'><input type="text" id="mon_can${item_doc}" name="mon_can[]" class="form-control text-right text-xs fila-input " readonly/></td>
-			${adicional}
-            <td class="text-center"><div class="btn-group"><input type="checkbox" name="id_check[]" class="form-check-input check-row text-xs" data-input-id="mon_can${item_doc}" data-input-ret="mon_ret${item_doc}" data-input-num="num_ret${item_doc}"/> <button type="button" class="btn btn-danger btn-xs borrar_doc" title="Eliminar item"><i class="fa fa-trash"></i></button></div></td>
-        `);
-		if ($("#id").val()) {
-			$("#" + nom_table).append(htmlTags);
-		} else {
-			$("#tbody").append(htmlTags);
-		}
-		$("#item").val(item_doc);
-		$("#modal_doc_pen_cxc").modal("hide");
-	} catch (error) {
-		console.log("Ha ocurrido el siguiente error: " + error);
-	}
-});
-$(document).ready(function () {
-	//Al seleccionar un registro del modal y decir que se va a cobrar, para acutlizar montos en la tabla. Jose Vargas 28-08-2025 10:42:00
-	/*
-	$(document).on("change", ".check-row", function(){
-		check_row("tblSeatDetail", this);
-	});
-	
-	$(document).on("change", ".check-row", function(){
-		check_row("tblSeatDetail_cxp", this);
-	});
-	*/
-})
 
 $(document).on("change", ".check-row", function () {
 	check_row(nom_table, this);
@@ -6607,190 +6436,6 @@ $(document).on('paste', 'input.numerico-con-signo', function (e) {
 
 		element.value = finalValue;
 	}, 0);
-});
-//funcion para elimnar una fila de detalle de documentos
-$(document).on("click", ".borrar_doc", function (event) {
-	event.preventDefault();
-	$(this).closest("tr").remove();
-	UpdateDataTable("#" + nom_table);
-});
-//Mostar los Documentos pendientes de Cuentas por Cobrar, tanto desde Banco Movimientos como desde Movimientos de Cuenas por Cobrar. José Vargas 28-08-2025 a las 10:10:00
-$("#modal_doc_pen_cxp").on("show.bs.modal", function () {
-	var url = "";
-	fecha_comp = $("#fecha_comp").val();
-	id_moneda = $("#id_moneda").val();
-	url = `${base_url}/CXPDocument/doc_ped_cli`;
-	datos = {
-		id_emp: id_emp,
-		id_cli: id_ent,
-		fecha_comp: fecha_comp,
-		id_moneda: id_moneda,
-	};
-	$.ajax({
-		url: url,
-		method: "POST",
-		data: datos,
-		dataType: "json",
-		beforeSend: function () {
-			loader.show();
-		},
-		success: function (data) {
-			$("#tblModalDocPend_cxp").DataTable({
-				destroy: true,
-				data: data,
-				responsive: true,
-				processing: true,
-				columns: [
-					{ data: "id_doc", title: "Id" },
-					{ data: "tipo_codigo", title: "Código" },
-					{ data: "nom_tdoc", title: "Descripción" },
-					{
-						data: "num_tdo",
-						title: "Número",
-						className: "text-right",
-					},
-					{
-						data: "nro_control",
-						title: "Control",
-						className: "text-right",
-					},
-					{
-						data: "fecha_comp",
-						render: $.fn.dataTable.render.moment(
-							FROM_PATTERN,
-							TO_PATTERN
-						),
-						title: "Fecha Emi.",
-					},
-					{
-						data: "fecha_venci",
-						render: $.fn.dataTable.render.moment(
-							FROM_PATTERN,
-							TO_PATTERN
-						),
-						title: "Fecha Venc.",
-					},
-					{
-						data: "codigo_moneda",
-						title: "Moneda",
-						className: "text-center",
-					},
-					{
-						data: "tasa_cambio",
-						className: "text-right",
-						render: DataTable.render.number(".", ",", 8),
-						title: "Tasa Cambio",
-					},
-					{
-						data: null,
-						className: "text-right",
-						title: "Monto Doc.",
-						render: function (data, type, row) {
-							if (id_moneda == id_moneda_cia) {
-								return `${format_number_with_dec_new(
-									row.mon_doc_dom,
-									2
-								)}`;
-							} else {
-								return `${format_number_with_dec_new(
-									row.mon_doc_for,
-									2
-								)}`;
-							}
-						},
-					},
-					{
-						data: null,
-						className: "text-right",
-						title: "Saldo Doc.",
-						render: function (data, type, row) {
-							if (id_moneda == id_moneda_cia) {
-								return `${format_number_with_dec_new(
-									row.sal_doc_dom,
-									2
-								)}`;
-							} else {
-								return `${format_number_with_dec_new(
-									row.sal_doc_for,
-									2
-								)}`;
-							}
-						},
-					},
-				],
-				language: {
-					url: `${base_url}/Assets/json/es-ES.json`,
-				},
-			});
-		},
-		complete: function () {
-			loader.hide();
-		},
-		error: function (error) {
-			loader.hide();
-			console.log("Error al cargar los datos: ", error);
-		},
-	});
-});
-$("#modal_doc_pen_cxp").on("hidden.bs.modal", function () {
-	// Destruye la DataTable con ID 'miDataTable'
-	$("#tblModalDocPend_cxp").DataTable().destroy();
-	// O si usas la sintaxis antigua:
-	// $('#miDataTable').dataTable().fnDestroy();
-});
-//Al seleccionar un registro de un documento a cancelar, tanto desde banco Movimitnos, como desde Cuentas por Cobrar Movimientos. José Vargas 28-08-2025 a las 120:19:00
-$("body").on("click", "#tblModalDocPend_cxp tr", function () {
-	try {
-		item_doc++;
-		var row_select = $(this).closest("tr");
-		var adicional = "";
-		var datosFila = row_select
-			.find("td")
-			.map(function () {
-				return $(this).text();
-			})
-			.get();
-		nom_table = "tblSeatDetail_cxp";
-		if (!table) {
-			table = $("#" + nom_table).DataTable({
-				info: false,
-				paging: false,
-				searching: false,
-				ordering: false,
-				destroy: true,
-				language: {
-					url: `${base_url}/Assets/json/es-ES.json`,
-				},
-				colResizable: true,
-			});
-		}
-		var tr = '<tr id="fila' + item_doc + '">';
-		var htmlTags = $(tr).append(`
-            <td class='text-right'><input type="text" id="id_cot${datosFila[0]
-			}" name="id_cot[]" class="form-control text-right text-xs rid_cot" value="${datosFila[0]
-			}" readonly/>'</td>
-            <td class='text-right'>${item_doc}</td>
-            <td>${datosFila[1]}</td>
-            <td>${datosFila[2]}</td>
-            <td class='text-center'>${datosFila[3]}</td>
-            <td class='text-center'>${datosFila[5]}</td>
-            <td class='text-center'>${datosFila[6]}</td>
-            <td class='text-center'><input type="text" id="id_moneda_doc${item_doc}" name="id_moneda_doc[]" class="form-control text-center text-xs" value="${datosFila[7]
-			}" readonly/></td>
-            <td class='text-right'>${datosFila[8]}</td>
-            <td class='text-right'>${datosFila[9]}</td>
-			<td class='text-right'><input type="text" id="sal_doc${item_doc}" name="sal_doc[]" class="form-control text-right text-xs sal_doc" readonly value="${datosFila[10]}"/></td>
-            <td class='text-right'><input type="text" id="mon_can${item_doc}" name="mon_can[]" class="form-control text-right text-xs fila-input " readonly/></td>
-            <td class="text-center"><input type="checkbox" name="id_check[]" class="form-check-input check-row check-row" data-input-id="mon_can${item_doc}" data-input-ret="mon_ret${item_doc}" data-input-num="num_ret${item_doc}"/> <button type="button" class="btn btn-danger btn-xs borrar_doc" title="Eliminar item"><i class="fa fa-trash"></i></button>
-			</td>
-        `);
-		table.row.add(htmlTags).draw(true);
-		//$("#tbody").append(htmlTags);
-		$("#item").val(item_doc);
-		$("#modal_doc_pen_cxp").modal("hide");
-	} catch (error) {
-		console.log("Ha ocurrido el siguiente error: " + error);
-	}
 });
 //Convertir en mayusculas
 $(".mayusculas").on("input", function () {

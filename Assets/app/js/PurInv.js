@@ -238,6 +238,24 @@ $(document).ready(function () {
 		});
 		$(this).prop("disabled", false);
 	})
+	//Imprimir Retención de IVA
+	$(document).on('click', ".btn-printer-retiva", function () {
+		let id_cot = $(this).data('id');
+		let nom_tdo = $(this).data('name');
+		let num_tdo = $(this).data('code');;
+		let msg = `¿Está seguro de Imprimir la Retención del IVA del Documento ${nom_tdo} Número ${num_tdo}?.`
+		Swal.fire({
+			title: msg,			
+			showCancelButton: true,
+			confirmButtonText: "Si",
+			cancelButtonText: `No`
+		}).then((result) => {
+			/* Read more about isConfirmed, isDenied below */
+			if (result.isConfirmed) {
+				print_ret_iva(id_cot);
+			}			
+		});
+	})
 });
 /**Nuevo registro */
 function dat_form_new() {
@@ -251,7 +269,7 @@ function dat_form_new() {
 }
 /**Consultar registro */
 function show_row(id) {
-	let url = `${base_url}/PurInv/show_row`;
+	url = `${base_url}/PurInv/show_row`;
 	$.ajax({
 		url: url,
 		method: 'POST',
@@ -293,7 +311,7 @@ function show_row(id) {
 				confirmButtonText: 'Aceptar'
 			});
 		},
-		success: function (data) {			
+		success: function (data) {
 			enca = data[0];
 			//Cargar detalle
 			var detalleLimpio = data.map(function (item, index) {
@@ -337,7 +355,7 @@ function show_row(id) {
 			nom_cli = enca['nom_ent'];
 			$("#nom_cli").val(nom_cli);
 			id_retiva = enca['id_retiva'];
-			if(id_retiva != 0){
+			if (id_retiva != 0) {
 				$(".especial_contrib").show();
 				listar_retiva(id_retiva, 'id_retiva');
 			}
@@ -424,4 +442,8 @@ function listar_doc_fuentes_cxp(id_emp, id, tag, tipo, id_cli, tipo_doc_ori, blo
 			},
 		});
 	}
+}
+/**Imprimir Retención de IVA */
+function print_ret_iva(id) {
+	window.open(`${base_url}/PurInv/print_Retiva/${id}`, "_blank");
 }

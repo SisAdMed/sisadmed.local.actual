@@ -223,9 +223,9 @@ function initPurInv() {
                 }
                 if (permisos_del == 1) {
                     t_menu += `<button id="Data" data-toggle="tooltip" data-placement="top" title= "Eliminar registro" data-id="${row.id}" data-code = "${row.num_tdo}" data-name="${row.nom_tdoc}" type="button" class="btn btn-danger btn-xs btn-delete"><i class="fa fa-trash"></i></button>     `;
-                }
-                if (permisos_cre == 1) {
-                    t_menu += `<a type="button" class="btn btn-primary btn-xs" data-code = "${row.num_tdo}" href="${base_url}/PurInv/print_RetIva/${row.id_cot}" target="_blank"><i class="fa-solid fa-print" title="Imprimir"></i></a>`;
+                }                         
+                if (row.ret_iva === 1) {                   
+                    t_menu += `<button id="Data" data-toggle="tooltip" data-placement="top" title= "Imp. Retención de IVA" data-id="${row.id_cot}" data-code = "${row.num_tdo}" data-name="${row.nom_tdoc}" type="button" class="btn btn-primary btn-xs btn-printer-retiva"><i class="fa-solid fa-print"></i></button>     `;
                 }
                 return t_menu;
             },

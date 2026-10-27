@@ -1,0 +1,19 @@
+[2026-09-29 09:04:10] [ERROR]: [2026-09-29 09:04:10] Error BD: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '2026-09-29-2' for key 'f0012.fecha_moneda']
+[2026-09-30 08:58:55] [INFO]: [Tasa (859.0629 VES) guardada correctamente en la base de datos.
+]
+[2026-10-05 09:01:44] [INFO]: [Tasa (871.3689 VES) guardada correctamente en la base de datos.
+]
+[2026-10-06 12:16:35] [INFO]: [Tasa (872.3927 VES) guardada correctamente en la base de datos.
+]
+[2026-10-07 08:59:41] [INFO]: [Tasa (873.867 VES) guardada correctamente en la base de datos.
+]
+[2026-10-09 09:46:29] [INFO]: [Tasa (875.6505 VES) guardada correctamente en la base de datos.
+]
+[2026-10-14 09:44:17] [INFO]: [Tasa (877.9023 VES) guardada correctamente en la base de datos.
+]
+[2026-10-15 08:54:48] [INFO]: [Tasa (879.1225 VES) guardada correctamente en la base de datos.
+]
+[2026-10-16 08:36:40] [INFO]: [Tasa (880.1159 VES) guardada correctamente en la base de datos.
+]
+[2026-10-22 08:59:36] [INFO]: [Tasa (884.7496 VES) guardada correctamente en la base de datos.
+]

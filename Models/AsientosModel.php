@@ -4,7 +4,7 @@
         parent::__construct();
     }
     static function all(){
-        return $r = DB::query("SELECT * FROM f00121 a INNER JOIN f0011 e on a.id_emp = e.id_emp INNER JOIN f0005 m ON a.id_moneda = m.id_moneda INNER JOIN f0019 t on t.id_tipcom = a.id_tipcom");
+        return $r = DB::query("SELECT a.id_comp, a.ori_comp, t.nombre_tipcom, a.num_comp, e.nombre_emp, a.fecha_comp, m.codigo_moneda, a.tasa_cambio, a.status, (a.fecha_comp < e.fec_ctb) borrable FROM f00121 a INNER JOIN f0011 e on a.id_emp = e.id_emp INNER JOIN f0005 m ON a.id_moneda = m.id_moneda INNER JOIN f0019 t on t.id_tipcom = a.id_tipcom");
     }
     static function guardar($data){
         return $id = DB::insert('f00121', $data);

@@ -40,36 +40,10 @@
             </div>
         </div>
     </div>
-    <div class="card-body">
-        <div class="card card-primary">
-            <div class="card-header">
-                <h3 class="card-title text-xs text-center">Detalle de Comprobante</h3>
-            </div>
-        </div>
+    <div class="card-body">        
         <div class="form-group col-md-12 col-sm-12 col-xs-12">
             <input type="number" name="item" id="item" hidden>
-            <table id="tblAsiento" class="table table-striped table-bordered table-condensed table-hover text-xs" style="width:100%">
-                <thead class="btn-primary">
-                    <tr>
-                        <th class="text-right">Item</th>
-                        <th>Cuenta Contable</th>
-                        <th>Auxiliar Contable</th>
-                        <th>Descripción detalle</th>
-                        <th>Tipo</th>
-                        <th class="text-right">Debe</th>
-                        <th class="text-right">Haber</th>
-                        <th class="text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tblAsientoDet"></tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="5" class="text-right text-xs">Total Asiento Contable</th>
-                        <th class="text-right"><input type="text" name="mondebe" id="mondebe" class="form-control text-right text-xs" readonly></th>
-                        <th class="text-right"><input type="text" name="monhabe" id="monhabe" class="form-control text-right text-xs" readonly></th>
-                        <th></th>
-                    </tr>
-                </tfoot>
+            <table id="tblAsiento" name="tblAsiento" class="table table-striped compact table-bordered table-condensed table-hover text-xs" style="width:100%">               
             </table>
         </div>
     </div>

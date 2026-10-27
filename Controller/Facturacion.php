@@ -39,8 +39,7 @@ class Facturacion extends Controller
             $id = intval(limpiar($id));
             if ($id > 0) {
                 $r = FacturacionModel::edit($id);
-                if (empty($r)) {
-                    Alertas::new('El registro no existe', 'warning');
+                if (empty($r)) {                    
                     header('Location:' . base_url . '/Facturacion');
                 }
                 $this->views->getView($this, "edit", [
@@ -53,8 +52,7 @@ class Facturacion extends Controller
                 header('Location:' . base_url . '/Facturacion');
             }
             return;
-        }
-        Alertas::new('No tiene permiso para realizar esta acción', 'warning');
+        }        
         header('Location:' . base_url . '/Facturacion');
     }
     public function consultar_factura(){
@@ -85,8 +83,7 @@ class Facturacion extends Controller
             $id = intval(limpiar($id));
             if ($id > 0) {
                 $r = FacturacionModel::print_factura($id);
-                if (empty($r)) {
-                    Alertas::new('El registro no existe', 'warning');
+                if (empty($r)) {                    
                     header('Location:' . base_url . '/Facturacion');
                 }
                 $this->views->getView($this, "print_factura", ['r' => to_obj($r)]);
@@ -94,8 +91,7 @@ class Facturacion extends Controller
                 header('Location:' . base_url . '/Facturacion');
             }
             return;
-        }
-        Alertas::new('No tiene permiso para realizar esta acción', 'warning');
+        }        
         header('Location:' . base_url . '/Facturacion');
     }
     public function print_factura_metro($id){
@@ -103,8 +99,7 @@ class Facturacion extends Controller
             $id = intval(limpiar($id));
             if ($id > 0) {
                 $r = FacturacionModel::print_factura($id);
-                if (empty($r)) {
-                    Alertas::new('El registro no existe', 'warning');
+                if (empty($r)) {                    
                     header('Location:' . base_url . '/Facturacion');
                 }
                 $this->views->getView($this, "print_factura_metro", [
@@ -114,33 +109,16 @@ class Facturacion extends Controller
                 header('Location:' . base_url . '/Facturacion');
             }
             return;
-        }
-        Alertas::new('No tiene permiso para realizar esta acción', 'warning');
+        }        
         header('Location:' . base_url . '/Facturacion');
     }
     public function destroy(){
-        $dataJson = [];
-        $id = intval(limpiar($_POST['id']));
-        $r = FacturacionModel::selectEncyDetmovinv($id);
-        foreach ($r as $key) {
-            $id_movinv = $key['id_movinv'];
-            $r1 = FacturacionModel::borrarEncyDetmovinv($id_movinv);
+        if($_SERVER['REQUEST_METHOD'] == 'POST'){            
+            $dataJson = [];
+            $id = $_POST['id'];        
+            $r = FacturacionModel::destroy($id);        
+            echo json_encode($r, JSON_UNESCAPED_UNICODE);
         }
-        $ide = FacturacionModel::borrar($id);
-        if ($ide) {
-            $dataJson = [
-                'status' => true,
-                'type' => 'success',
-                'msg' => sprintf('El registro %s, con la descripción %s se ha eliminado correctamente', $_POST['id'], $_POST['id'])
-            ];
-        } else {
-            $dataJson = [
-                'status' => true,
-                'type' => 'success',
-                'msg' => sprintf('El registro %s, con la descripción %s se ha eliminado correctamente', $_POST['cod_alm'], $_POST['noidm_alm'])
-            ];
-        }
-        echo json_encode($r, JSON_UNESCAPED_UNICODE);
     }
     public function create_express(){
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -230,7 +208,7 @@ class Facturacion extends Controller
         }
     }
     public function store(){
-        if($_SERVER['REQUEST_METHOD'] == 'POST'){                     
+        if($_SERVER['REQUEST_METHOD'] == 'POST'){                    
             $detalle = json_decode($_POST['detalle']);                
             $enca = [];
             $deta = [] ;            
@@ -257,6 +235,7 @@ class Facturacion extends Controller
                 $mod_doc = convert_string_to_number($_POST['total_frml']);
             }
             $id_cont = '';
+            $signo = 1;
             if($_POST['tipo_fact'] =='F'){
                 $id_cont = 'FAC';
             } else if ($_POST['tipo_fact'] =='N') {            
@@ -264,7 +243,7 @@ class Facturacion extends Controller
             }else if ($_POST['tipo_fact'] =='Z') {
                 $id_cont = 'NOF';
             }else if ($_POST['tipo_fact'] =='C') {
-                $id_cont = 'FNC';
+                $id_cont = 'FNC';                
             }
             if (isset($_POST['origen']) && $_POST['origen']) {                
                 if ($_POST['tipo_fact'] == 'F') {                    
@@ -287,7 +266,7 @@ class Facturacion extends Controller
                     $id_des_val = true;
                 }
             }
-            $nro_control = 0;
+            $nro_control = $_POST['nro_control'];
             $adic_01 = 0;
             $adic_02  = 0;
             //Buscar personalizaciones
@@ -325,15 +304,15 @@ class Facturacion extends Controller
                 'tasa_cambio' => number_format($xtasa, 8),
                 'id_vend' => $_POST['id_vend'],
                 'descrip_cot' => htmlspecialchars(limpiar($_POST['descrip_cot'])),
-                'mon_doc' => $mod_doc,
-                'sal_doc' => $mod_doc,
+                'mon_doc' => $mod_doc * $signo,
+                'sal_doc' => $mod_doc * $signo,
                 'status' => 1,
                 $modu => $_SESSION['id_user'],
                 $modd => getAuditoria(),
                 'id_cont' => $id_cont,
                 'id_des' => $id_des,
                 'oc_cliente' => limpiar($_POST['oc_cliente'] ?? ''),                
-                'id_doc_afec' => $_POST['id_doc_afec'] ?? '',
+                'id_doc_afec' => $_POST['origen'] ?? '',
                 'doc_afectado' => '',
                 'id_motcam' => $id_motcam,
                 'invoice' => null,
@@ -343,18 +322,18 @@ class Facturacion extends Controller
                 'imp_tasa_cambio' => '',
                 'motivo' =>  null,
                 'nro_control' => $nro_control,
-            ];   
+            ];               
             //Detalle de FActura
             $xvatTax = xvatTax($_POST['fecha_comp'], 'IVA');            
-            $xTasaIva = $xvatTax[0]['txr1_iva'];
-            $mon_iva = 0;   
-            foreach( $detalle as $item){                                    
+            $xTasaIva = $xvatTax[0]['txr1_iva'];           
+            foreach( $detalle as $item){        
+                $mon_iva = 0;                               
                 $id_prod = $item->id_prod;                
                 if(!$id_prod){
                     continue;
                 }
                 $iva_prod = $item->iva_prod;
-                $sub_total = convert_string_to_number($item->sub_total);
+                $sub_total = convert_string_to_number($item->sub_total) * $signo;
                 if($iva_prod == 'S'){                                        
                     $mon_iva = $sub_total * ($xTasaIva / 100);
                 }                
@@ -367,10 +346,10 @@ class Facturacion extends Controller
                 $utilidad = 0;
                 $adicional = 0;
                 //asignacion de valores desde la consulta                
-                $costo = $val_cod_prod[0]['costo'];                
-                $utilidad = $val_cod_prod[0]['utilidad'];
+                $costo = $val_cod_prod[0]['costo'] * $signo;                
+                $utilidad = $val_cod_prod[0]['utilidad'] * $signo;
                 $xuni_venta = $val_cod_prod[0]['uni_ven_prod'];
-                $adicional = $val_cod_prod[0]['adicional'];
+                $adicional = $val_cod_prod[0]['adicional'] * $signo;
                 
                 $deta[] = [                    
                     'id_cot' => '',
@@ -391,8 +370,12 @@ class Facturacion extends Controller
                     'costo' => $costo,
                     'dif_cambio' => '',
                 ];              
-            }                                                     
-            $r = FacturacionModel::guardar($enca, $deta, $_POST['id'], $limitePorFactura);                        
+            }                                            
+            IF(isset($_POST['id']) && $_POST['id'] > 0){
+                $r = FacturacionModel::guardar($enca, $deta, $_POST['id'], $limitePorFactura);                                        
+            } else {
+                $r = FacturacionModel::guardar($enca, $deta, 0, $limitePorFactura);                                        
+            }                                
             echo json_encode($r, JSON_UNESCAPED_UNICODE);         
         }
     }

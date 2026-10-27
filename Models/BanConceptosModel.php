@@ -23,7 +23,7 @@ class BanConceptosModel extends DB{
         return DB::update('f5005', $data, ['id_bancon' => $id]);
     }
     static function listar_conceptos(){
-        return $r = DB::query("SELECT * FROM f5005 WHERE status = 1 AND agr_bancon = 'N' ORDER BY nom_bancon");
+        return $r = DB::query("SELECT a.id_bancon, a.cod_bancon, a.nom_bancon, b.aux_cta FROM f5005 a LEFT OUTER JOIN f0010 b ON b.id_cta = a.id_ctb WHERE a.status = 1 AND a.agr_bancon = 'N' ORDER BY a.nom_bancon;");
     }
     static function listar_conceptos_exc(){
         $sql = "SELECT a.id_bancon, a.nom_bancon, IFNULL(b.id_concept, 0) active FROM f5005 a LEFT OUTER JOIN f4015 b ON b.module = 'B' AND b.id_concept = a.id_bancon WHERE a.status = 1 AND a.agr_bancon = 'N' ORDER BY a.nom_bancon";

@@ -74,7 +74,7 @@ function eliminarBtn(element) {
     });
 }
 async function borrar(datos){
-    let url =  `${base_url}/TipoDcto/destroy`;
+    url =  `${base_url}/TipoDcto/destroy`;
     let repuesta = await fetch(url, {
         method:"POST",
         body: datos,

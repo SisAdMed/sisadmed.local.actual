@@ -12,6 +12,7 @@ let board = [];
 let id_ven_cli = 0;
 let id_vend2 = [];
 let tasa_fac = 0;
+let cambiar_cliente_flag = false;
 id_clir = $("#id_clir").val();
 id_empr = $("#id_empr").val();
 fecha_comp = $("#fecha_comp").val();
@@ -249,7 +250,7 @@ $(document).ready(async function () {
 		}
 	});
 	//Completar datos del encabezado y detalle de la factura al seleccioanr un origen
-	$(document).on("change", "#origen", function (e) {		
+	$(document).on("change", "#origen", function (e) {
 		e.preventDefault();
 		table.clear().draw();
 		id_cotiza = $(this).val();
@@ -304,6 +305,7 @@ $(document).ready(async function () {
 		if (!$(this).valid()) {
 			return false;
 		}
+		const $btnOk = $("#btnok");
 		// 2. Extraer los datos del detalle (recorriendo cada fila)
 		var detalle = [];
 		var table = $('#tblDetalle').DataTable();
@@ -335,7 +337,6 @@ $(document).ready(async function () {
 		var formData = new FormData(this);
 		formData.append('fac_notas', fac_notas);
 		formData.append('detalle', JSON.stringify(detalle));		
-		const $btnOk = $("#btnok");
 		const url = `${base_url}/Facturacion/store`;
 		//Ajax para Guardar y/o Actualizar
 		$.ajax({
@@ -396,8 +397,7 @@ $(document).ready(async function () {
 					}
 				})
 			},
-		});
-		$(this).prop("disabled", false);
+		});		
 	});
 	$(document).on('click', '.btn_printer_doc', async function () {
 		const id = this; // Definimos correctamente el elemento clickeado
@@ -454,13 +454,12 @@ $(document).ready(async function () {
 						datos.append("id_cot", id_cot);
 						datos.append("tasa_cambio", tasa_cambio);
 
-						let url = `${base_url}/Facturacion/update_tasa`;
+						url = `${base_url}/Facturacion/update_tasa`;
 						let respuesta = await fetch(url, {
 							method: "POST",
 							body: datos,
 						});
 						await respuesta.json(); // Consumimos la respuesta
-
 						window.open(`${base_url}/Facturacion/print_factura_metro/` + id_cot, "_blank");
 					} catch (error) {
 						console.log(error);
@@ -516,6 +515,59 @@ $(document).ready(async function () {
 			}
 		}
 	});
+	$(document).on('click', '.btn-delete', function (e) {
+		e.preventDefault();
+		const id = this;
+		const id_cot = id.dataset.id;
+		const name = id.dataset.name;
+		const num_tdo = id.dataset.code;
+		const title = `¿Está seguro que desea eliminar el Documento ${name} Número ${num_tdo}?.`;
+		const fila = $(this).closest('tr');
+		Swal.fire({
+			title: title,
+			icon: 'question',
+			text: '¡No podrás revertir esta acción!',
+			showCancelButton: true,
+			confirmButtonColor: "#3085d6",
+			cancelButtonColor: "#d33",
+			confirmButtonText: "Si, elimiar registro!",
+			cancelButtonText: "Cancelar"
+		}).then((result) => {
+			if (result.isConfirmed) {
+				$.ajax({
+					url: `${base_url}/Facturacion/destroy`,
+					method: 'POST',
+					data: { id: id_cot },
+					dataType: 'json',
+					success: function (response) {
+						if (response.success) {
+							Swal.fire({
+								title: "¡Eliminado!",
+								text: `El documento ${name} Número ${num_tdo} ha sido eliminado correctamente`,
+								icon: 'success'
+							});
+							if ($.fn.DataTable.isDataTable('#tblIndexMain')) {
+								$('#tblIndexMain').DataTable().ajax.reload(null, false);
+							}
+						} else {
+							Swal.fire({
+								title: "Error",
+								text: response.msg || "No se pudo eliminar el registro",
+								icon: error
+							});
+						}
+					},
+					error: function (xhr, status, error) {
+						Swal.fire({
+							title: 'Error de servidor',
+							text: 'Ocurrió un problema al procesar la solicitud',
+							icon: 'error'
+						});
+					}
+				});
+			}
+		});
+	});
 });
 /**Nuevo Registro */
 function dat_form_new() {
@@ -537,9 +589,17 @@ function dat_form_new() {
  * @param {*} tipo_fac 
  */
 function show_row(id, tipo_fac) {
-	let url = "", onlyread = "";
-	url = `${base_url}/Facturacion/consultar_factura`;
-	tipo = (tipo_fac == "N") ? 'NOL' : 'NOF';
+	url = "", onlyread = "";
+	url = `${base_url}/Facturacion/consultar_factura`;	
+	if(tipo_fac == "N"){
+		tipo = 'NOL';
+	}else if(tipo_fac == 'Z'){
+		tipo = 'NOF';
+	}else if(tipo_fac =='C'){
+		tipo = 'FNC';		
+	}else{
+		tipo = 'FAC';
+	}	
 	$btnOk = $("#btnok");
 	$.ajax({
 		url: url,
@@ -562,7 +622,7 @@ function show_row(id, tipo_fac) {
 		complete: function () {
 			Swal.close();
 		},
-		success: function (data) {			
+		success: function (data) {
 			enca = data[0];
 			//
 			//Cargar detalle         			
@@ -608,6 +668,7 @@ function show_row(id, tipo_fac) {
 			$("#descrip_cot").val(enca['descrip_cot']);
 			id_motcam = enca['id_motcam'];
 			listar_motivo_cambio(id_motcam, true);
+			$("#nro_control").val(enca["nro_control"]);
 			show_tasa(id_emp, id_moneda, formatoMoneda(enca['tasa_cambio']));
 			//Mostrar el Modal de Almacenes y Ubicaciones si es consignado y no tiene ubicacion asignada
 			if (enca["c_consig"] == 1) {
@@ -709,7 +770,7 @@ async function fetcingData(id_cli) {
 			mostar_data_inv();
 		}
 	}
-	if (tipo_fac == "F") {
+	if (tipo_fac == "F" || tipo_fac == "N" || tipo_fac == "Z") {
 		id_tdoc_pre = id_tdo_cfg["id_tdoc_pre"];
 		listar_tipos_documentos(id_emp, "P,Z", 0, true, "fuente");
 		$("#origen").empty();
@@ -773,7 +834,7 @@ async function show_picture() {
 	try {
 		var datos = new FormData();
 		datos.append("id_prod_img", id_prod_img);
-		let url = `${base_url}/Productos/showImg`;
+		url = `${base_url}/Productos/showImg`;
 		let repuesta = await fetch(url, {
 			method: "POST",
 			body: datos,
@@ -1019,7 +1080,7 @@ async function readpdf(text) {
 				nom_des: '',
 				iva_prod: iva_prod,
 				total: sub_total
-			});			
+			});
 		}
 	});
 	//Cargar el detalle de la factura
@@ -1046,11 +1107,11 @@ async function readpdf(text) {
 	table.draw();
 	if (error_msg != "") {
 		Swal.fire({
-			icon: "error",	
+			icon: "error",
 			title: "Error al cargar productos",
 			text: error_msg,
 		});
 	}
-			
+
 	$(".loader").hide();
 }

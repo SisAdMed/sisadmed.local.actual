@@ -13,9 +13,9 @@
             </div>
         </div>
     </section>
-    <section class="content">        
+    <section class="content">
         <form id="my_form" name="my_form" method="POST" class="form-horizontal form-label-left" enctype="multipart/form-data">
-            <div lass="row d-flex justify-content-ceter">
+            <div class="row d-flex justify-content-center text-xs">
                 <?php include_once __DIR__ . "/form.php" ?>
                 <div class="col-12 text-center mt-3">
                     <div class="card-footer border-top-0">

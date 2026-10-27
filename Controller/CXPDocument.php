@@ -325,6 +325,7 @@ class CXPDocument extends Controller{
                         
                         $val_concepto = ConcepCXPModel::ret_islr($id_concxc);                        
                         if($val_concepto){
+                            $sustraendo = $val_concepto["sustraendo"];
                             $xarrayISLR = [
                                 "monto" => $monto,
                                 "id_ret" => $val_concepto["id_retislr"],
@@ -335,8 +336,9 @@ class CXPDocument extends Controller{
                                 "total_monto" => $mon_doc,
                                 "total_base" => $monto,
                                 "base_imp" => $val_concepto["fac_reten"],
-                                "deducible" => 0,
-                                "total_retenido" => $monto * ($val_concepto["por_reten"] / 100)
+                                "deducible" => $sustraendo,
+                                "total_retenido" => ($monto * ($val_concepto["por_reten"] / 100)) - $sustraendo,
+                                "fac_reten" => $val_concepto["fac_reten"],                                
                             ];
                             array_push($item, $xarrayISLR);
                         }

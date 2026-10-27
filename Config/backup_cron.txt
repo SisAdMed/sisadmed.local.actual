@@ -1,0 +1,8 @@
+// 01.- Standar basico
+0	*	*	*	*	>/dev/null 2>&1
+// 02.- Respaldo diario a las 12 de la noche
+0	0	*	*	*	php /home/cpuj4gbphmxn/sisadmed.corp-mmq.com/Config/backup.php >> /home/cpuj4gbphmxn/sisadmed.corp-mmq.com/Config/log_backup.txt 2>&1
+// 03.- Obtener tasa de cambio del dia, se jecuta a las dos de la mañana
+0	2	*	*	*	php /home/cpuj4gbphmxn/sisadmed.corp-mmq.com/Config/obtener_bcv.php >> /home/cpuj4gbphmxn/sisadmed.corp-mmq.com/Config/obtener_bcv.txt 2>&1
+// 04.- Cierre de fecha de procesos de los modulos se ejecuta a las 11 de la noche diariamente
+0	22	*	*	*	php /home/cpuj4gbphmxn/sisadmed.corp-mmq.com/Config/close_date.php >> /home/cpuj4gbphmxn/sisadmed.corp-mmq.com/Config/close_date.log 2>&1

@@ -52,39 +52,17 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="card card-primary">
-            <div class="card-header">
-                <h3 class="card-title text-xs">Detalle de movimiento</h3>
-            </div>
-        </div>
         <input type="text" name="item" id="item" hidden>
         <div class="row">
             <div class="form-group col-md-12 col-sm-12 col-xs-12">
-                <table id="tblSeatDetail_cxp" name="tblSeatDetail_cxp" class="table table-striped table-bordered table-condensed table-hover text-xs" style="width: 100%;">
-                    <thead>
-                        <tr>
-                            <th style="width: 5px;">Id</th>
-                            <th>Item</th>
-                            <th>Tipo</th>
-                            <th>Descripción</th>
-                            <th class="text-right">Número</th>
-                            <th class="text-center">Fec. Emisión</th>
-                            <th class="text-center">Fec. Vencim.</th>
-                            <th>Moneda</th>
-                            <th class="text-right">Tasa</th>
-                            <th class="text-right">Monto</th>
-                            <th class="text-right">Saldo</th>
-                            <th class="text-right">Cancelar</th>
-                            <th class="text-center">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody">
-                    </tbody>
+                <table id="tblDetalleMovCxp" name="tblDetalleMovCxp" class="table table-striped table-bordered table-condensed compact table-hover text-xs" style="width: 100%;">
                     <tfoot>
                         <tr>
-                            <th colspan="11" class="text-right">TotaL:</th>
-                            <th><input type="button" class="form-control text-right text-xs" readonly id="tot_can_tbl_cxp" name="tot_can_tbl_cxp" /></th>
-                            <th></th>
+                            <th colspan="11" class="text-right">Total Cancelar:</th>
+                            <th class="text-right">
+                                <span id="footer_total_cancelar">0,00</span>
+                            </th>
+                            <th></th> <!-- Columna de acción vacía para cuadrar con las 13 columnas -->
                         </tr>
                     </tfoot>
                 </table>
@@ -98,6 +76,6 @@
     </div>
 </div>
 <?php
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/Views/Proveedores/modal_Proveedores.php';
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/Views/CXPDocument/modal_doc_pen_cxp.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/Views/Proveedores/modal_Proveedores.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/Views/CXPDocument/modal_doc_pen_cxp.php';
 ?>

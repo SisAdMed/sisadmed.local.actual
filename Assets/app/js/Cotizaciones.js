@@ -61,9 +61,9 @@ $(document).ready(function () {
 			listar_monedas();
 			listar_vendedores();
 			listar_marcas();
-			if (loc_pri_cot == 1) {
-				onlyread = " readonly ";
-			}
+			var loc_pri_cot = id_tdo_cfg["loc_pri_cot"];
+			// Determinamos aquí de forma síncrona si debe bloquearse
+			bloquearPrecioVtaGlobal = (loc_pri_cot === 1); // true o false			
 		}
 		if (!id) {
 			if (id_tdo_cfg) {
@@ -306,6 +306,11 @@ $(document).ready(function () {
 			}
 		});
 	});
+	//Mostrar express con stock o sin stock
+	$("#only_stock").on('change', function(e){
+		e.preventDefault()		
+		create_express();
+	})
 });
 //Formulario Nuevo
 function dat_form_new() {
@@ -337,7 +342,7 @@ function dat_form(id_cot) {
 				errorThrown
 			);
 		},
-		success: function (data) {
+		success: async function (data) {
 			//Encabezado
 			id_emp = data[0].id_emp;
 			id_tdo = data[0].id_tdo;
@@ -367,17 +372,15 @@ function dat_form(id_cot) {
 			//Detalle
 			onlyread = "";
 			id_emp = data[0].id_emp;
-			id_tdo_cfg = tip_doc_fac(id_emp);
-			loc_pri_cot = id_tdo_cfg["loc_pri_cot"];
-			locked_invoice = id_tdo_cfg["locked_invoice"];
-			if (loc_pri_cot == 1) {
-				onlyread = " readonly ";
-			}
+			id_tdo_cfg = await tip_doc_fac(id_emp);			
 			stock = id_tdo_cfg["cot_stock"];
+			var loc_pri_cot = id_tdo_cfg["loc_pri_cot"];
+			// Determinamos aquí de forma síncrona si debe bloquearse
+			bloquearPrecioVtaGlobal = (loc_pri_cot === 1); // true o false
 			item = 0;
 			htmlTags = "";
 			var detalleLimpio = data.map(function (item, index) {		
-				   var $row = $('#tblDetalle').DataTable().row(index).node();
+				var $row = $('#tblDetalle').DataTable().row(index).node();
 				    // Capturamos el valor dinámico actual del input de cantidad
                     var cantidadReal = $($row).find("input[id^='cant']").val() || item.cant;		
 				return {
@@ -531,15 +534,25 @@ function print_cotiza_excel(e, ori) {
 		});
 	}
 }
-function create_express() {
-	const url = `${base_url}/Cotizaciones/create_express`;
+async function create_express() {	
+	const url = `${base_url}/Cotizaciones/create_express`; 
 	id_ent = $("#id_cli").val();
-
+	id_emp = $("#id_emp").val();
+	fecha_comp = $("#fecha_comp").val();
+	tasa_cambio = formatoMoneda($("#tasa_cambio").val());
+	fecha_comp = $("#fecha_comp").val();
+	id_moneda = $("#id_moneda").val();	
+	table.clear();	
+	table.draw();
+	only_stock = 0
+	if ($('#only_stock').prop('checked')) {
+		only_stock = 1
+	}
 	$.ajax({
 		url: url,
 		method: "POST",
 		dataSrc: "",
-		data: { id_fab: id_fab, id_ent: id_ent },
+		data: { id_fab: id_fab, id_ent: id_ent, fecha_comp: fecha_comp, tasa_cambio: tasa_cambio, id_moneda, id_moneda,  id_emp: id_emp, only_stock: only_stock},		
 		dataType: "json",
 		beforeSend: function () {
 			loader.show();
@@ -555,31 +568,30 @@ function create_express() {
 				errorThrown
 			);
 		},
-		success: function (data) {
-			var htmlTags = "";
-			item = 0;
-			$.each(data, function (i, xitem) {
-				var detalleLimpio = data.map(function (item) {
-					
+		success: function (data) {	
+				
+			$.each(data, function (i, xitem) {								
+				var detalleLimpio = data.map(function (item) {					
+					// 7. Consulta adicional si el tipo de factura lo requiere tipo_fac);					
 					return {
 						id_prod: item.id_prod,
-						nom_prod: item.nom_prod,
+						nom_prod: decodificarHTML(item.nom_prod),
 						cant: item.can_det,
 						stock: item.stock,
 						uni_ven_prod: item.uni_ven_prod,
-						ventas_prod1: item.pv1,
-						ventas_prod: (item.pv1 / item.uni_ven_prod),
-						iva_prod: (item.iva_prod == "0") ? 'N' : 'S',
+						ventas_prod: item.ventas_prod,
+						ventas_prod1: item.ventas_prod1,						
+						iva_prod: item.iva_prod ,
 						id_des_item: '',
 						nom_des: '',
-						total: item.pv1
+						total: item.total
 					}
-				});
+				});							
 				table.clear();
-				table.rows.add(detalleLimpio);
+				table.rows.add(detalleLimpio);				
 				table.draw();
-				tasa_cambio = formatoMoneda($("#tasa_cambio").val());
-				recorreTable_fac('', tasa_cambio, tipo_fac);
+				tasa_cambio = formatoMoneda($("#tasa_cambio").val());				
+				recorreTable_fac('', tasa_cambio, tipo_fac);			
 			});
 			xtasa = formatoMoneda($("#tasa_cambio").val());
 			recorreTable_fac(1, xtasa, "P");

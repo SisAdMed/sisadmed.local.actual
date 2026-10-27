@@ -56,8 +56,8 @@
             <label for="observa">Observaciones</label>
             <textarea name="observa" id="observa" class="form-control text-xs" cols="50"></textarea>
         </div>
-         <div class="form-group col-md-2 col-sm-2 col-xs-12">
-                <label for="id_fab">Marca</label>
+        <div class="form-group col-md-2 col-sm-2 col-xs-12">
+                <label for="id_fab">Marca &nbsp&nbsp Solo stock &nbsp&nbsp<input type="checkbox" id="only_stock"/></label>
                 <select name="id_fab" id="id_fab" class="select2 select2bs4 text-xs" multiple style="width:100%">
                 </select>
             </div>

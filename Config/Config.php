@@ -1,7 +1,7 @@
 <?php
 // URL Base del proyecto (cambia esto cuando lo subas a producción)
 define('base_url', 'http://sisadmed.local.actual');
-define('DB_NAME', "josvarsi_db_sisadmed_actual");
+define('DB_NAME', "josvarsi_db_sisadmed_actual_net");
 
 //define('base_url', 'https://sisadmed.corp-mmq.com');
 //define('DB_NAME', "josvarsi_db_sisadmed");

@@ -3,7 +3,7 @@
         parent::__construct();
     }
     static function all(){
-        return $r = DB::query("SELECT id_cta, CAST(cod_cta AS CHAR) cod_cta, nombre_cta, agrupa_cta, status, aux_cta, CASE tip_cta WHEN 'A' THEN 'ACTIVO' WHEN 'P' THEN 'PASIVO' WHEN 'C' THEN 'CAPITAL' WHEN 'I' THEN 'INGRESO' WHEN 'S' THEN 'COSTO' WHEN 'E' THEN 'EGRESO' WHEN 'T' THEN 'CONTRA' WHEN 'O' THEN 'PERCONTRA' END tip_cta FROM f0010 ORDER BY 2");
+        return $r = DB::query("SELECT id_cta, CAST(cod_cta AS CHAR) cod_cta, nombre_cta, agrupa_cta, status, aux_cta, CASE tip_cta WHEN 'A' THEN 'ACTIVO' WHEN 'P' THEN 'PASIVO' WHEN 'C' THEN 'CAPITAL' WHEN 'I' THEN 'INGRESO' WHEN 'S' THEN 'COSTO' WHEN 'E' THEN 'EGRESO' WHEN 'T' THEN 'CONTRA' WHEN 'O' THEN 'PERCONTRA' END tip_cta, CAST(REPLACE(cod_cta, '.', '') AS UNSIGNED ) codigo  FROM f0010 ORDER BY CAST(REPLACE(cod_cta, '.', '') AS CHARACTER) ASC");
     }
     static function guardar($data){
         return $id = DB::insert('f0010', $data);

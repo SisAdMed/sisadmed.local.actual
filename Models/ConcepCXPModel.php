@@ -37,8 +37,8 @@ class ConcepCXPModel extends DB {
     static function listar_conceptos_CXP_EXC(){
         return $r = DB::query("SELECT a.id, a.codigo_con, a.nombre_con, a.agrupa_con, CONCAT(c.cod_cta, ' - ', c.nombre_cta) id_ctb, CONCAT(d.cod_aux, ' - ', d.nombre_aux) id_aux, a.status, e.descrip, e.por_reten, IFNULL(f.id_concept, 0) active  FROM f3003 a LEFT OUTER JOIN f0010 c ON c.id_cta = a.id_ctb LEFT OUTER JOIN f0009 d on d.id_aux = a.id_aux LEFT OUTER JOIN f0021 e ON e.id = a.id_retislr LEFT OUTER JOIN f4015 f on f.module = 'P' AND f.id_concept = a.id WHERE a.status = 1 AND a.agrupa_con = 'N' ORDER BY a.nombre_con ");
     }
-    static function ret_islr($id){
-        $sql = "SELECT a.id_retislr, b.minimo, b.maximo, b.por_reten, b.por_imp_suj_ret, b.fac_reten FROM f3003 a INNER JOIN f0021 b on b.id = a.id_retislr WHERE a.id = {$id}";
+    static function ret_islr(int $id){
+        $sql = "SELECT a.id_retislr, b.minimo, b.maximo, b.por_reten, b.por_imp_suj_ret, b.fac_reten, b.sustraendo FROM f3003 a INNER JOIN f0021 b on b.id = a.id_retislr WHERE a.id = {$id}";
         $r = DB::query($sql);
         if($r){
             return $r[0];

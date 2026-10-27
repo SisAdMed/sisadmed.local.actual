@@ -199,6 +199,13 @@ function show_row(id) {
 				$("#internet").prop('checked', false);
 				$("#url").prop('disabled', true);
 			}
+			//Cambiar cliente
+			cambiar_cliente = data[0].cambiar_cliente;
+			if(cambiar_cliente == 1){
+				$("#cambiar_cliente").prop('checked', true);				
+			}else{
+				$("#cambiar_cliente").prop('checked', false);				
+			}
 			$("#url").val(data[0].url)
 			logo = data[0].logo_ent;
 			$("#imgPreview").attr('src', logo);

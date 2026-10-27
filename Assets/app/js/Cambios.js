@@ -15,7 +15,7 @@ function eliminarBtn(element) {
          datos.append('id', idm);
          datos.append('name', namem);
          try {
-          let url =  `${base_url}/Cambios/destroy`;
+          url =  `${base_url}/Cambios/destroy`;
           let repuesta = await fetch(url, {
             method:"POST",
             body: datos,

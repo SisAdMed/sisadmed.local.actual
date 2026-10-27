@@ -472,7 +472,7 @@ function eliminarBtn(element) {
 	});
 }
 async function borrar(datos) {
-	let url = `${base_url}/Facturacion/destroy`;
+	url = `${base_url}/Facturacion/destroy`;
 	console.log(datos);
 	let repuesta = await fetch(url, {
 		method: "POST",
@@ -498,7 +498,7 @@ async function show_picture() {
 	try {
 		var datos = new FormData();
 		datos.append("id_prod_img", id_prod_img);
-		let url = `${base_url}/Productos/showImg`;
+		url = `${base_url}/Productos/showImg`;
 		let repuesta = await fetch(url, {
 			method: "POST",
 			body: datos,

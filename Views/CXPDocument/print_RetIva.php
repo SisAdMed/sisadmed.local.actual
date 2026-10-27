@@ -181,7 +181,7 @@ for($i= 0; $i<count($d);$i++){
     $pdf->cell(10,7, html_entity_decode($d[$i]->item), 'BL', 0, 'C');
     $pdf->cell(20,7, html_entity_decode(formatFecha($d[$i]->fecha_pago)), 'B', 0, 'C');
     $pdf->cell(25,7, html_entity_decode(($d[$i]->num_tdo)), 'B', 0, 'C');
-    $pdf->cell(10,7, html_entity_decode($d[$i]->num_control), 'B', 0, 'C');
+    $pdf->cell(10,7, html_entity_decode('00-' . $d[$i]->num_control), 'B', 0, 'C');
     $pdf->cell(25,7, html_entity_decode($d[$i]->num_debito), 'B', 0, 'C');
     $pdf->cell(25,7, html_entity_decode($d[$i]->num_credito), 'B', 0, 'C');
     $pdf->cell(10,7, html_entity_decode($d[$i]->tipo_tran), 'B', 0, 'C');

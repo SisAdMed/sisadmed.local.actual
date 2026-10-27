@@ -10,14 +10,14 @@
             </div>
             <div class="modal-body">
                 <div class="form-group col-md-12 col-sm-12 col-xs-12" id="listar_entidad_modal" name="listar_entidad_modal">
-                    <table id="tblModalClientes" name="tblModalClientes" class="display responsive nowrap table table-hover" style="width:100%">
+                    <table id="tblModalClientes" name="tblModalClientes" class="display responsive nowrap compact table table-hover" style="width:100%">
                         <thead>
                             <tr>
                                 <th>Id</th>
                                 <th>Rif</th>
                                 <th>Cliente</th>
-                                <th>Zona</th>
-                                <th>Vendedor</th>
+                                <th>Vendedor</th>                                    
+                                <th>Zona</th>                                                            
                             </tr>
                         </thead>
                     </table>

@@ -83,7 +83,7 @@ caption{
 }
 .table thead, .table tfoot {
 	background-color: #455a64;
-	color: azure;
+	color: #f0ffff;
 }
 .ui-datepicker-calendar { 
 	display: none; 
@@ -213,4 +213,9 @@ table.dataTable tbody td {
 /* Forzamos a que todas las celdas del cuerpo de la tabla del detalle se alineen al medio */
 #tblDetalle tbody td {
     vertical-align: middle !important;
+}
+#tblSeatDetail_cxp thead, #tblSeatDetail_cxc thead,
+#tblSeatDetail_cxp tfoot, #tblSeatDetail_cxc tfoot {
+    background-color: #455a64; /* O el tono de gris que usa tu plantilla */
+    color: #f0ffff;
 }

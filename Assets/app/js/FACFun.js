@@ -2,6 +2,7 @@
 let table;
 tabla = "tblDetalle"
 xori_tipo_doc = '';
+var bloquearPrecioVtaGlobal = false; // Por defecto editable
 //Facturas
 $(document).ready(function () {
     table = $(`#tblDetalle`).DataTable({
@@ -31,18 +32,29 @@ $(document).ready(function () {
                     var item = meta.row + 1;
                     var id = row.id_prod || '';
                     var nom = row.nom_prod || '';
+                    // Creamos un elemento temporal de tipo DOM para decodificar cualquier entidad HTML previa
+                    var txtDecoder = document.createElement('textarea');
+                    txtDecoder.innerHTML = nom;
+                    var nomDecodificado = txtDecoder.value;
                     return `
                     <input type="hidden" name="id_prod[]" id="id_prod${item}" value="${id}" class="text-xs photo id_prod">
                     <div class="input-group">
-                        <input type="text" class="form-control text-xs" id="nom_prod${item}" name="nom_prod[]" value="${nom}" title="${nom}" readonly>
+                        <input type="text" class="form-control text-xs" id="nom_prod${item}" name="nom_prod[]" value="" title="" readonly>
                         <div class="input-group-append">
                             <span class="input-group-text">
                                 <a href="#" class="btn-buscar-producto" data-item="${item}" data-id_prod = "${id}" data-toggle="modal" data-target="#modal-productos" title="Buscar y seleccionar productos"><i class="fas fa-search"></i></a>
                             </span>
                         </div>
                     </div>`;
-                }
-            },
+                },
+                // Y asignamos el valor de forma segura mediante jQuery post-renderizado o usando text()
+                createdCell: function (cell, cellData, rowData, rowIndex) {
+                    var item = rowIndex + 1;
+                    var nom = rowData.nom_prod || '';        
+                    // Limpiamos y asignamos el valor de forma segura al input y al title sin riesgo de que las comillas lo rompan
+                    $(cell).find(`input[name='nom_prod[]']`).val(nom).attr('title', nom);
+                },
+            },            
             // 3. Cantidad
             {
                 data: null,
@@ -96,7 +108,10 @@ $(document).ready(function () {
                 render: function (data, type, row, meta) {
                     var item = meta.row + 1;
                     var val = row.ventas_prod1 || '0.00';
-                    return `<input type="text" name="ventas_prod1[]" id="ventas_prod1${item}" value="${format_number_with_dec_new(val, 4)}" class="form-control text-right text-xs camponumero reCalcular" data-campo="pre_vta" style="width:100%">`;
+                    // Evaluamos directamente la variable global síncrona
+                    var esReadonly = bloquearPrecioVtaGlobal ? 'readonly' : '';
+                    var claseExtra = bloquearPrecioVtaGlobal ? 'bg-light' : ''; // Opcional para que se vea deshabilitado
+                    return `<input type="text" name="ventas_prod1[]" id="ventas_prod1${item}" value="${format_number_with_dec_new(val, 4)}" class="form-control text-right text-xs camponumero reCalcular" data-campo="pre_vta" style="width:100%" ${esReadonly}>`;
                 }
             },
             // 8. Descuento (Hidden + Input + Lupa Modal)
@@ -222,6 +237,7 @@ $(document).ready(function () {
         }
     });
     $('#btnAgregarFila').on('click', function () {
+        var esReadonly = bloquearPrecioVtaGlobal ? 'readonly' : '';
         // Estructura limpia del objeto vacío
         var nuevoRegistro = {
             id_prod: '',
@@ -229,12 +245,12 @@ $(document).ready(function () {
             cantidad: 0,
             stock: 0,
             uni_ven_prod: '',
-            ventas_prod: '0,00',
-            ventas_prod1: '0,00',
+            ventas_prod: format_number_with_dec_new(0, 4),
+            ventas_prod1: format_number_with_dec_new(0, 4),
             id_des_item: '',
             nom_des: '',
             iva_prod: '',
-            total: '0,00'
+            total: format_number_with_dec_new(0, 4)
         };
         // Agregamos a la API y redibujamos la tabla
         table.row.add(nuevoRegistro).draw(false);
@@ -280,8 +296,8 @@ $(document).ready(function () {
         var new_pre_uni = pre_vta / uni_vta;
         var new_total = pre_vta * cantidad;
         // 4. Actualizar las DOS columnas en la fila        
-        $row.find('.pre_uni').val(format_number_with_dec_new(new_pre_uni, 2));
-        $row.find('.sub_tot').val(format_number_with_dec_new(new_total, 2));
+        $row.find('.pre_uni').val(format_number_with_dec_new(new_pre_uni, 4));
+        $row.find('.sub_tot').val(format_number_with_dec_new(new_total, 4));
         //Mostrar total en formulario
         tasa_cambio = formatoMoneda($("#tasa_cambio").val());
         recorreTable_fac(0, tasa_cambio, tipo_fac, "tblDetalle");
@@ -397,12 +413,8 @@ function CalculateTotalFac() {
     xprecio_venta = $(`#ventas_prod1${item}`).val()
     xprecio_venta = parseFloat(formatoMoneda($(`#ventas_prod1${item}`).val()));
     xunidad_venta = parseFloat($(`#uni_ven_prod${item}`).val());
-    $(`#ventas_prod${item}`).val(
-        format_number_with_dec_new(xprecio_venta / xunidad_venta, 2)
-    );
-    $(`#total${item}`).val(
-        format_number_with_dec_new(xcantidad * xprecio_venta, 2)
-    );
+    $(`#ventas_prod${item}`).val(format_number_with_dec_new(xprecio_venta / xunidad_venta, 4));
+    $(`#total${item}`).val(format_number_with_dec_new(xcantidad * xprecio_venta, 4));
     monto = xcantidad * xprecio_venta;
     let modo = "N";
     id_cot = $("#id").val();
@@ -422,7 +434,7 @@ function CalculateTotalFac() {
     recorreTable_fac(val_col, tasa_cambio, tipo_fac, tabla);
 }
 // Mostar Datos cuando se selecciona una cotizacion
-function show_data_origen(id_cot, origen) {    
+function show_data_origen(id_cot, origen) {
     if (!id_cot) {
         console.warn("No se proporcionó un ID de cotización válido.");
         return;
@@ -456,8 +468,8 @@ function show_data_origen(id_cot, origen) {
             console.error("Error al recibir datos del servidor:", error);
             loader.hide();
         },
-        success: function (data) {            
-            if (data) {                
+        success: function (data) {
+            if (data) {
                 id_moneda_ori = data[0]['id_moneda'];
                 tasa_cambio_ori = data[0]['tasa_cambio'];
                 num_cotiza = data[0]['num_tdo'];
@@ -484,7 +496,7 @@ function show_data_origen(id_cot, origen) {
                 valor = 1;
                 if (tipo_fac == "C") {
                     valor = -1;
-                }                
+                }
                 var detalleLimpio = data.map(function (item, index) {
                     var $row = $('#tblDetalle').DataTable().row(index).node();
                     // Capturamos el valor dinámico actual del input de cantidad

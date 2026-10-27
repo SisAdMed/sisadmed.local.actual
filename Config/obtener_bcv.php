@@ -76,21 +76,21 @@ if ($nodes->length > 0) {
                 ':cambio_venta'   => $tasaDolar,
                 ':create_user'   => $id_user,
                 ':create_date'   => getAuditoria(),
-            ]);
-            debug($stmt->debugDumpParams());
+            ]);            
             echo "Tasa ({$tasaDolar} VES) guardada correctamente en la base de datos.\n";
         }
         //
         $link->commit();
+        registrarLog("[" . "Tasa ({$tasaDolar} VES) guardada correctamente en la base de datos.\n" . "]", 'INFO', 'obtener_bcv.log');
         //                
     } catch (PDOException $e) {
         debug($e->getMessage());
         $link->rollback();
-        error_log("[" . date('Y-m-d H:i:s') . "] Error BD: " . $e->getMessage());
+        registrarLog("[" . date('Y-m-d H:i:s') . "] Error BD: " . $e->getMessage() ."]", 'ERROR', 'obtener_bcv.log');        
         echo "Error al guardar en la base de datos.\n";
     }
     
 } else {
-    error_log("[" . date('Y-m-d H:i:s') . "] No se pudo extraer el contenedor id='dolar' del HTML.");
+    registrarLog("[" . date('Y-m-d H:i:s') . "] No se pudo extraer el contenedor id='dolar' del HTML." ."]", 'ERROR', 'obtener_bcv.log');    
     echo "No se encontró la tasa en el DOM.\n";
 }

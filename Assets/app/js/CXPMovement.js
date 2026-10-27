@@ -1,6 +1,4 @@
 //Variables
-item = 0;
-Tmod = "P";
 efe_bantmo = "P";
 efecto = "P";
 //Validar campos del formulario
@@ -17,7 +15,6 @@ $().ready(function () {
 			id_moneda: "required",
 			movem_descrip: "required",
 			status: "required",
-			item: "required",
 		},
 		messages: {
 			id_emp: "Debe especificar una empresa",
@@ -27,7 +24,6 @@ $().ready(function () {
 			id_moneda: "Debe especificar una Moneda",
 			movem_descrip: "Debe especificar una Descripción",
 			status: "Debe especificar un Status",
-			item: "Debe existir al menois un detalle en el Movimiento",
 		},
 	});
 	//Cargar el Index
@@ -43,191 +39,326 @@ $().ready(function () {
 			dat_form_new();
 		}
 	}
-	//
-	table = $("#tblSeatDetail_cxp").DataTable({
-		info: false,
-		paging: false,
-		searching: false,
-		ordering: false,
-		destroy: true,
-		colResizable: true,
-		language: {
-			url: `${base_url}/Assets/json/es-ES.json`,
-		},
+	//al seleccionar Empresa
+	$("#id_emp").on("change", async function (e) {
+		e.preventDefault();
+		id_emp = $(this).val();
+		id_tmocxp = $("#id_tmocxp");
+		id_tmocxp.empty();
+		$("#tbody").empty();
+		if (id_emp) {
+			listar_tipos_mov_CXP(0, "id_tmocxp");
+			id_tdo_cfg = await tip_doc_com(id_emp);
+			id_moneda_cia = id_tdo_cfg["id_moneda"];
+		}
+	});
+	//Validar Tipo de Movimiento
+	$("#id_tmocxp").on("change", async function (e) {
+		id_tmocxp = $(this).val();
+		$("#tbody").empty();
+		const datos = new FormData();
+		datos.append("id", id_tmocxp);
+		$("#movem_number").prop("readonly", false);
+		if (id_tmocxp) {
+			try {
+				const url = `${base_url}/CXPMovement/val_tmo`;
+				const respuesta = await fetch(url, {
+					method: "POST",
+					body: datos,
+				});
+				const resultado = await respuesta.json();
+				if (resultado) {
+					if (resultado[0]["con_tmocxp"] == "N") {
+						$("#movem_number").prop("readonly", false);
+					} else {
+						$("#movem_number").prop("readonly", true);
+					}
+				}
+			} catch (error) {
+				console.log("Ha ocurrido el siguiente error: " + error);
+			}
+		}
+	});
+	//Seleccionar proveedor
+	$("#id_ent").on("change", async function (e) {
+		e.preventDefault();
+		id_ent = $(this).val();
+		$("#tbody").empty();
+		if (id_ent) {
+			const datosFetched = await tid_vend(id_ent);
+			nom_cli = datosFetched["nom_ent"];
+			$("#nom_ent").val(nom_cli);
+		}
+	});
+	//Nuevo detalle de documentos a cancelar
+	$("#newdetail").on("click", function () {
+		$("#modal_doc_pen_cxp").modal("show");
+	});
+	$(document).on('click', '.btn-delete-index', function (e) {
+		e.preventDefault();
+		const id = this;
+		const id_cot = id.dataset.id;
+		const code = id.dataset.code;
+		const name = id.dataset.name;
+		const num_tdo = id.dataset.number;
+		const title = `¿Está seguro que desea eliminar el Movimiento ${code} ${name} Número ${num_tdo}?.`;
+		const fila = $(this).closest('tr');
+		Swal.fire({
+			title: title,
+			icon: 'question',
+			text: '¡No podrás revertir esta acción!',
+			showCancelButton: true,
+			confirmButtonColor: "#3085d6",
+			cancelButtonColor: "#d33",
+			confirmButtonText: "Si, elimiar registro!",
+			cancelButtonText: "Cancelar"
+		}).then((result) => {
+			if (result.isConfirmed) {
+				$.ajax({
+					url: `${base_url}/CXPMovement/destroy`,
+					method: 'POST',
+					data: { id: id_cot },
+					dataType: 'json',
+					success: function (response) {
+						if (response.success) {
+							Swal.fire({
+								title: "¡Eliminado!",
+								text: `El Movimiento ${code} ${name} Número ${num_tdo} ha sido eliminado correctamente`,
+								icon: 'success'
+							}).then((result) => {
+								if ($.fn.DataTable.isDataTable('#tblIndexMain')) {
+									$('#tblIndexMain').DataTable().ajax.reload(null, false);
+								}
+							});
+						} else {
+							Swal.fire({
+								title: "Error",
+								text: response.msg || "No se pudo eliminar el registro",
+								icon: error
+							});
+						}
+					},
+					error: function (xhr, status, error) {
+						Swal.fire({
+							title: 'Error de servidor',
+							text: 'Ocurrió un problema al procesar la solicitud',
+							icon: 'error'
+						});
+					}
+				});
+			}
+		});
+	});
+	// Guardar y/o Actualizar
+	$("#my_form").on("submit", function (e) {
+		e.preventDefault();
+		if (!$(this).valid()) {
+			return false;
+		}
+		const $btnOk = $("#btnok");
+
+		// 1. Extraer los datos recorriendo directamente las filas del tbody de la tabla
+		var detalle = [];
+
+		$('#tblDetalleMovCxp tbody tr').each(function () {
+			var $row = $(this);
+
+			// Si la tabla está vacía, DataTables suele poner una fila de "Ningún dato disponible". La ignoramos:
+			if ($row.find('.dataTables_empty').length > 0) {
+				return;
+			}
+
+			var dataRow = $('#tblDetalleMovCxp').DataTable().row($row).data();
+
+			if (dataRow) {
+				var mon_can = $row.find('input[name="mon_can[]"]').val() || '0';
+
+				var itemDetalle = {
+					id_cot: dataRow.id_cot || '',
+					tipo_codigo: dataRow.tipo_codigo || '',
+					nom_tdoc: dataRow.nom_tdoc || '',
+					num_tdo: dataRow.num_tdo || '',
+					fecha_emi: dataRow.fecha_emi || '',
+					fecha_ven: dataRow.fecha_ven || '',
+					id_moneda_doc: dataRow.id_moneda_doc || '',
+					tasa_cambio: dataRow.tasa_cambio || '',
+					monto_doc: dataRow.monto_doc || '',
+					sal_doc: dataRow.sal_doc || '',
+					mon_can: mon_can
+				};
+
+				detalle.push(itemDetalle);
+			}
+		});
+
+		// Validar que exista al menos un artículo en el detalle
+		if (detalle.length === 0) {
+			Swal.fire('Error', 'Debe agregar al menos un documento válido al detalle.', 'warning');
+			return false;
+		}
+
+		// 2. Empaquetamos el detalle en el formData
+		var formData = $(this).serializeArray();
+		formData.push({ name: 'detalle_movimiento', value: JSON.stringify(detalle) });
+
+		const url = `${base_url}/CXPMovement/store`;
+		$.ajax({
+			url: url,
+			type: "POST",
+			data: formData,
+			dataType: "json",
+			beforeSend: function () {
+				$btnOk.prop("disabled", true);
+				Swal.fire({
+					title: 'Guardando...',
+					text: `Guardando el Movimiento de Cuentas por Pagar, por favor espere.`,
+					allowOutsideClick: false,
+					allowEscapeKey: false,
+					showConfirmButton: false,
+					didOpen: () => {
+						Swal.showLoading();
+					}
+				});
+			},
+			// CORREGIDO: Se reciben los parámetros correctos (xhr, textStatus, errorThrown)
+			error: function (xhr, textStatus, errorThrown) {
+				$btnOk.prop("disabled", false);
+
+				let serverErrorMsg = 'No se pudo procesar la solicitud en el servidor.';
+
+				if (xhr.responseJSON && xhr.responseJSON.msg) {
+					serverErrorMsg = xhr.responseJSON.msg;
+				} else if (xhr.responseText) {
+					serverErrorMsg = xhr.statusText || errorThrown;
+				}
+
+				console.error('Detalle del error:', xhr.responseText);
+
+				Swal.fire({
+					title: `Error (${xhr.status || 'Desconocido'})`,
+					text: serverErrorMsg,
+					icon: 'error',
+					confirmButtonText: 'Aceptar'
+				});
+			},
+			success: function (data) {
+				Swal.fire({
+					title: data.title,
+					text: data.msg,
+					icon: data.icon,
+				}).then((result) => {
+					if (data.icon != "error") {
+						window.location.href = `${base_url}/CXPMovement`;
+					} else {
+						$btnOk.prop("disabled", false);
+					}
+				});
+			},
+		});
 	});
 });
-//Al seleccionar nuevo
+/**Nuevo Registro */
 function dat_form_new() {
 	listar_empresas();
 	listar_status(1);
 	$("#fecha_comp").val(GetTodayDate(0));
 	listar_monedas();
 }
-//al seleccionar Empresa
-$("#id_emp").on("change", async function (e) {
-	e.preventDefault();
-	id_emp = $(this).val();
-	id_tmocxp = $("#id_tmocxp");
-	id_tmocxp.empty();
-	$("#tbody").empty();
-	if (id_emp) {
-		listar_tipos_mov_CXP(0, "id_tmocxp");
-		id_tdo_cfg = await tip_doc_com(id_emp);
-		id_moneda_cia = id_tdo_cfg["id_moneda"];
-	}
-});
-//Validar Tipo de Movimiento
-$("#id_tmocxp").on("change", async function (e) {
-	id_tmocxp = $(this).val();
-	$("#tbody").empty();
-	const datos = new FormData();
-	datos.append("id", id_tmocxp);
-	$("#movem_number").prop("readonly", false);
-	if (id_tmocxp) {
-		try {
-			const url = `${base_url}/CXPMovement/val_tmo`;
-			const respuesta = await fetch(url, {
-				method: "POST",
-				body: datos,
-			});
-			const resultado = await respuesta.json();
-			if (resultado) {
-				if (resultado[0]["con_tmocxp"] == "N") {
-					$("#movem_number").prop("readonly", false);
-				} else {
-					$("#movem_number").prop("readonly", true);
-				}
-			}
-		} catch (error) {
-			console.log("Ha ocurrido el siguiente error: " + error);
-		}
-	}
-});
-//Seleccionar proveedor
-$("#id_ent").on("change", async function (e) {
-	e.preventDefault();
-	id_ent = $(this).val();
-	$("#tbody").empty();
-	if (id_ent) {
-		const datosFetched = await tid_vend(id_ent);
-		nom_cli = datosFetched["nom_ent"];
-		$("#nom_ent").val(nom_cli);
-	}
-});
-//Mostrar cambio al seleccionar Tipo de Moneda
-$(document).on("change", "#id_moneda", async function (e) {
-	e.preventDefault();
-	fecha_comp = $("#fecha_comp").val();
-	id_moneda = $(this).val();
-	$("#tasa_cambio").val("");
-	$("#tbody").empty();
-	if (id_moneda) {
-		//
-		xTasaCambio = await xTasa(fecha_comp, id_moneda);
-		$("#tasa_cambio").val(xTasaCambio);
-	}
-	$("#tasa_cambio").prop("readonly", true);
-});
-//Mostrar cambio al seleccionar Tipo de Moneda
-$(document).on("change", "#fecha_comp", async function (e) {
-	e.preventDefault();
-	fecha_comp = $(this).val();
-	id_moneda = $("#id_moneda").val();
-	//
-	xTasaCambio = await xTasa(fecha_comp, id_moneda);
-	$("#tasa_cambio").val(xTasaCambio);
-	$("#tasa_cambio").prop("readonly", true);
-});
-//Nuevo detalle de documentos a cancelar
-$("#newdetail").on("click", function () {
-	$("#modal_doc_pen_cxp").modal("show");
-});
-//Mostar los Documentos pendientes de Cuentas por Cobrar, tanto desde Banco Movimientos como desde Movimientos de Cuenas por Cobrar. José Vargas 28-08-2025 a las 10:10:00
-$("#modal_doc_pen_cxp").on("show.bs.modal", function () {
-	var url = "";
-	id_emp = $("#id_emp").val();
-	id_ent = $("#id_ent").val();
-	fecha_comp = $("#fecha_comp").val();
-	id_moneda = $("#id_moneda").val();
 
-	url = `${base_url}/CXPDocument/doc_ped_cli`;
-	datos = {
-		id_emp: id_emp,
-		id_cli: id_ent,
-		fecha_comp: fecha_comp,
-		id_moneda: id_moneda,
-	};
-
+/**
+ * Description Consutar un Movimiento de Cuentas por Pagar
+ *
+ * @param {*} id Id del Movimiento
+ */
+function show_row(id) {
+	url = `${base_url}/CXPMovement/show_row`;
 	$.ajax({
 		url: url,
-		method: "POST",
-		data: datos,
-		dataType: "json",
+		method: 'POST',
+		data: { id: id },
+		dataType: 'json',
 		beforeSend: function () {
-			$(".loader").show();
-		},
-		success: function (data) {
-			$("#tblModalDocPend_cxp").DataTable({
-				destroy: true,
-				data: data,
-				responsive: true,
-				processing: true,
-				columns: [
-					{ data: "id_doc", title: "Id" },
-					{ data: "tipo_codigo", title: "Código" },
-					{ data: "nom_tdoc", title: "Descripción" },
-					{ data: "num_tdo", title: "Número", className: "text-right", },
-					{ data: "nro_control", title: "Control", className: "text-right", },
-					{ data: "fecha_comp", render: $.fn.dataTable.render.moment(FROM_PATTERN, TO_PATTERN), title: "Fecha Emi.", },
-					{ data: "fecha_venci", render: $.fn.dataTable.render.moment(FROM_PATTERN,TO_PATTERN), title: "Fecha Venc.", },
-					{ data: "codigo_moneda", title: "Moneda", className: "text-center", },
-					{ data: "tasa_cambio", className: "text-right", render: DataTable.render.number(".", ",", 2), title: "Tasa Cambio",},
-					{ data: null, className: "text-right", title: "Monto Doc.",
-						render: function (row, type) {
-							if (id_moneda_cia == id_moneda) {
-								return `${format_number_with_dec_new(
-									row.mon_doc_dom,
-									2
-								)}`;
-							} else {
-								return `${format_number_with_dec_new(
-									row.mon_doc_for,
-									2
-								)}`;
-							}
-						},
-					},
-					{ data: null, className: "text-right", title: "Saldo Doc.",
-						render: function (row, type) {
-							if (id_moneda_cia == id_moneda) {
-								return `${format_number_with_dec_new(
-									row.sal_doc_dom,
-									2
-								)}`;
-							} else {
-								return `${format_number_with_dec_new(
-									row.sal_doc_for,
-									2
-								)}`;
-							}
-						},
-					},
-				],
-				language: {
-					url: `${base_url}/Assets/json/es-ES.json`,
-				},
+			// Muestra una ventana de SweetAlert2 con spinner activo
+			Swal.fire({
+				title: 'Consultando...',
+				text: `Consultando el Movimiento, por favor espere.`,
+				allowOutsideClick: false,
+				allowEscapeKey: false,
+				showConfirmButton: false,
+				didOpen: () => {
+					Swal.showLoading(); // Inicia la animación de carga
+				}
 			});
 		},
 		complete: function () {
-			$(".loader").hide();
+			Swal.close();
 		},
-		error: function (error) {
-			$(".loader").hide();
-			console.log("Error al cargar los datos: ");
+		error: function (xhr, status, error) {
+			// Extraer el mensaje real devuelto por el servidor si viene en JSON o texto
+			let serverErrorMsg = 'No se pudo procesar la solicitud en el servidor.';
+			if (xhr.responseJSON && xhr.responseJSON.msg) {
+				serverErrorMsg = xhr.responseJSON.msg;
+			} else if (xhr.responseText) {
+				// Si el backend devolvió un fatal error / HTML de PHP, se toma un fragmento legible
+				serverErrorMsg = xhr.statusText || error;
+			}
+			console.error('Detalle del error:', xhr.responseText);
+			Swal.fire({
+				title: `Error (${xhr.status || 'Desconocido'})`,
+				text: serverErrorMsg,
+				icon: 'error',
+				confirmButtonText: 'Aceptar'
+			});
 		},
+		success: function (data) {
+			var enca = data[0];
+			id_emp = enca['id_emp'];
+			listar_empresas(id_emp, true);
+			listar_tipos_mov_CXP(enca['id_tmocxp'], 'id_tmocxp', true);
+			$("#movem_number").val(enca['movem_number']).attr('readonly', true);
+			$("#id_ent").val(enca['id_cli']);
+			$("#nom_ent").val(enca['nom_ent']);
+			$("#fecha_comp").val(enca['fecha_comp']);
+			listar_monedas(enca['id_moneda'], true);
+			$("#tasa_cambio").val(format_number_with_dec_new(enca['tasa_cambio'], 4)).attr('readonly', true);
+			$("#movem_descrip").val(enca['movem_descrip']);
+			listar_status(enca['status']);
+			//Poblar Datatable de Detalle
+			var detalleLimpio = data.map(function (item, index) {
+				return {
+					id_cot: item.id_cot,
+					tipo_codigo: item.tipo_codigo,
+					nom_tdoc: item.nom_tdoc,
+					num_tdo: item.num_tdo,
+					fecha_emi: item.fecha_emi,
+					fecha_ven: item.fecha_venci,
+					id_moneda_doc: item.codigo_moneda,
+					tasa_cambio: format_number_with_dec_new(item.tasa_cambio, 4),
+					monto_doc: format_number_with_dec_new(item.mon_doc, 2),
+					sal_doc: format_number_with_dec_new(item.sal_doc, 2),
+					mon_can: format_number_with_dec_new(item.monto_doc, 2),
+				}
+			});
+			table.clear();
+			table.rows.add(detalleLimpio);
+			table.draw();
+			//Total items
+			$("#item").val(detalleLimpio.length);
+			// 2. LLAMADA DIRECTA: Ejecutamos tu función de validación de inmediato asegurando que los datos ya están en pantalla
+			if (typeof validarYObtenerTasa === 'function') {
+				validarYObtenerTasa(enca['id_emp'], enca['id_moneda'], enca['fecha_comp']);
+			} else {
+				console.error("La función validarYObtenerTasa no está definida o accesible en este ámbito.");
+			}
+		}
 	});
-});
-//Function para imprimir Movimiento
+}
+
+/**
+ * Description Imprimir Movimiento de Cuentas por Pagar
+ *
+ * @param {*} e 
+ */
 function print_mov(e) {
 	id = e.dataset.id;
 	tipo = e.dataset.tipo;
@@ -248,181 +379,5 @@ function print_mov(e) {
 				"_blank"
 			);
 		}
-	});
-}
-//Guardar y/o Actualizar
-$("#my_form").on("submit", function (e) {
-	e.preventDefault();
-	if ($(this).valid()) {
-		var formData = $(this).serialize();
-		const url = `${base_url}/CXPMovement/store`;
-		$.ajax({
-			url: url,
-			type: "POST",
-			dataSrc: "",
-			data: formData,
-			dataType: "json",
-			beforeSend: function () {
-				loader.show();
-			},
-			complete: function () {
-				loader.hide();
-			},
-			error: function (PDOException) {
-				loader.hide();
-				console.log(PDOException.responseText);
-			},
-			success: function (data) {
-				Swal.fire({
-					title: data.title,
-					text: data.msg,
-					icon: data.icon,
-				}).then((result) => {
-					if (data.icon != "error") {
-						window.location.href = `${base_url}/CXPMovement`;
-					}
-				});
-			},
-		});
-	}
-});
-//Eliminar un registro
-$("#tblIndexMain").on("click", ".btn-delete", function () {
-	var recordId = $(this).data("id"); // Obtiene el ID del registro
-	Swal.fire({
-		title: "¿Está usted seguro de eliminar este registro?",
-		text: "¡No podrá revertir esta eliminación!",
-		icon: "warning",
-		showCancelButton: true,
-		confirmButtonColor: "#3085d6",
-		cancelButtonColor: "#d33",
-		confirmButtonText: "Si, borrar este registro!",
-		cancelButtonText: "Cancelar",
-	}).then((result) => {
-		if (result.isConfirmed) {
-			const url = `${base_url}/CXPMovement/delete_row`;
-			$.ajax({
-				url: url, // URL de tu script de eliminación en el servidor
-				type: "POST",
-				data: { id: recordId },
-				dataType: "json",
-				beforeSend: function () {
-					loader.show();
-				},
-				complete: function () {
-					loader.hide();
-				},
-				success: function (resulta) {
-					// La respuesta del servidor debe indicar si fue exitoso
-					Swal.fire({
-						icon: `${resulta.icon}`,
-						title: `${resulta.title}`,
-						text: `${resulta.msg}`,
-					}).then((result) => {
-						if (result.isConfirmed) {
-							// Recarga el DataTable
-							tableIndex.draw(); // El 'false' previene que se reajuste la paginación a la página 1.
-							tableIndex.ajax.reload(null, true);
-							//window.location.href = `${base_url}/BanMovim`;
-						}
-					});
-				},
-				error: function (xhr, status, error) {
-					loader.hide();
-					alert("Hubo un error en la solicitud.");
-					console.error(xhr.responseText);
-				},
-			});
-		}
-	});
-});
-//Mostrar registro
-function show_row(id) {
-	$("#tbody").empty();
-	const url = `${base_url}/CXPMovement/showrow`;
-	$.ajax({
-		url: url,
-		method: "POST",
-		dataSrc: "",
-		data: { id: id },
-		dataType: "json",
-		beforeSend: function () {
-			loader.show();
-		},
-		success: function (response) {
-			data = response;
-			id_emp = data[0]["id_emp"];
-			listar_empresas(id_emp, true);
-			id_tmocxc = data[0]["id_tmocxp"];
-			listar_tipos_mov_CXP(id_tmocxc, "id_tmocxp", true);
-			movem_number = data[0]["movem_number"];
-			$("#movem_number").val(movem_number);
-			$("#movem_number").prop("readonly", true);
-			id_ent = data[0]["id_cli"];
-			$("#id_ent").val(id_ent);
-			nom_cli = data[0]["nom_ent"];
-			$("#nom_ent").val(nom_cli);
-			$("#fecha_comp").val(data[0]["fecha_comp"]);
-			$("#fecha_comp").prop("readonly", true);
-			id_moneda = data[0]["id_moneda"];
-			listar_monedas(id_moneda, true);
-			xtasa = format_number_with_dec_new(data[0]["tasa_cambio"], 2);
-			$("#tasa_cambio").val(xtasa);
-			$("#tasa_cambio").prop("readonly", true);
-			$("#movem_descrip").val(data[0]["movem_descrip"]);
-			status = data[0]["status"];
-			listar_status(status);
-			movem_origen = data[0]["movem_origen"];
-			if (movem_origen != "CXP") {
-				$("#btnok").prop("disabled", true);
-			}
-			item = 0;
-			x_mon_doc = 0;
-			htmlTags = "";
-			console.log(data);
-			$.each(data, function (i, xitem) {
-				item++;
-				fecha_emi = xitem.fecha_emi.split("-");
-				fecha_ven = xitem.fecha_venci.split("-");
-				var tr = `<tr id="fila-${item}">`;
-				var htmlTags = $(tr).append(`
-				<td class='text-right'><input type="text" id="id_cot${
-					xitem.id_cot
-				}" name="id_cot[]" class="form-control text-right text-xs rid_cot" value="${
-					xitem.id_cot
-				}" readonly/></td>
-				<td class='text-right'>${item}</td>
-				<td>${xitem.tipo_codigo}</td>
-				<td>${xitem.nom_tdoc}</td>
-				<td class='text-center'>${xitem.num_tdo}</td>
-				<td class='text-center'>${fecha_emi[2]}-${fecha_emi[1]}-${fecha_emi[0]}</td>
-				<td class='text-center'>${fecha_ven[2]}-${fecha_ven[1]}-${fecha_ven[0]}</td>
-				<td class='text-center'><input type="text" id="id_moneda_doc${item}" name="id_moneda_doc[]" class="form-control text-center text-xs" value="${
-					xitem.codigo_moneda
-				}" readonly/></td>
-				<td class='text-right'>${format_number_with_dec_new(xitem.tasa_cambio, 2)}</td>
-				<td class='text-right'>${format_number_with_dec_new(xitem.monto_doc, 2)}</td>
-				<td class='text-right'><input type="text" id="sal_doc${item}" name="sal_doc[]" class="form-control text-right text-xs sal_doc" readonly value="${format_number_with_dec_new(
-					xitem.sal_doc + xitem.monto_doc,
-					2
-				)}"/></td>
-				<td class='text-right'><input type="text" id="mon_can${item}" name="mon_can[]" class="form-control text-right text-xs fila-input" value="${format_number_with_dec_new(
-					xitem.monto_doc,
-					2
-				)}"/></td>
-				<td class="text-center"><input type="checkbox" name="id_check[]" class="form-check-input check-row-cxc" data-input-id="mon_can${item}" data-input-ret="mon_ret${item}" data-input-num="num_ret${item}" checked/> <button type="button" class="btn btn-danger btn-xs borrar_doc" title="Eliminar item"><i class="fa fa-trash"></i></button></td>`);
-				//$("#tbody").append(htmlTags);
-				table.row.add(htmlTags).draw();
-				$("#item").val(item);
-				UpdateDataTable("#tblSeatDetail_cxp");
-			});
-		},
-		complete: function () {
-			loader.hide();
-		},
-		error: function (error) {
-			loader.hide();
-			console.log("Ha ocurido el erro: " + error);
-		},
 	});
 }

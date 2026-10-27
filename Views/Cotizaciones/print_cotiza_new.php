@@ -1,12 +1,13 @@
 <?php
 require(FPDF1 . 'fpdf.php');
 include_once VARTAX;
+$r = $r ?? [];
 //Variables
 $sub_total = 0;
 $mon_base = 0;
 $mon_exe = 0;
 $iva = 0;
-$tasa_iva;
+$tasa_iva = 0;
 $total = 0;
 $filemame = $r[0]->num_tdo . '-' . $r[0]->nom_ent . '.pdf';
 $tman_letra = 7;
@@ -42,13 +43,13 @@ class PDF extends FPDF{
         $this->fecha_comp = formatFecha($r[0]->fecha_comp);
         $this->rif_ent = $r[0]->rif_ent;
         $this->num_tdo = $r[0]->num_tdo;
-        $this->codigo_moneda = $r[0]->codigo_moneda;
+        $this->codigo_moneda = $r[0]->moneda_cotiza;
         $this->dir_ent = $r[0]->dir_ent;
         $this->nombre_ciudad = $r[0]->nombre_ciudad;
         $this->nombre_edo = $r[0]->nombre_edo;
         $this->nombre_pais = $r[0]->nombre_pais;
         $this->postal_ent = $r[0]->postal_ent;
-        $this->moneda_cot = $r[0]->codigo_moneda;
+        $this->moneda_cot = $r[0]->moneda_cotiza;
         $this->moneda_emp = $r[0]->moneda_emp;
         $this->email_emp = $r[0]->email_emp;
         $this->nom_tdo = $r[0]->nom_tdoc;
@@ -253,7 +254,7 @@ for ($i = 0; $i < count($r); $i++) {
     $nom_fab = (is_null($r[$i]->nom_fab_fac)) ? $r[$i]->nom_fab : $r[$i]->nom_fab_fac ;
     $nom_prod =$r[$i]->nom_prod . ' ' . $nom_fab . ' ' . $r[$i]->ref_prod;
     if($r[$i]->lote_prod){
-       if($r[$i]->fec_ven >= date("Y-m-d")){
+        if($r[$i]->fec_ven >= date("Y-m-d")){
             $nom_prod = $nom_prod . ' Fec.Venc. ' . formatFecha($r[$i]->fec_ven);
         }
     }

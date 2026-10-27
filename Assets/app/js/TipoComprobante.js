@@ -27,7 +27,7 @@ function eliminarBtn(element) {
     });
 }
 async function borrar(datos){
-    let url =  `${base_url}/TipoComprobante/destroy`;
+    url =  `${base_url}/TipoComprobante/destroy`;
     let repuesta = await fetch(url, {
         method:"POST",
         body: datos,

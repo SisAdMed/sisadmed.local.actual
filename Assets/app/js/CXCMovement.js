@@ -375,22 +375,22 @@ $("body").on("click", "#tblModalDocPend_cxc tr", function () {
 		.get();
 	var tr = '<tr id="fila' + item_doc + '">';
 	var htmlTags = $(tr).append(`
-     		<td class='text-right'><input type="text" id="id_cot${datosFila[0]}" name="id_cot[]" class="form-control text-right text-xs rid_cot" value="${datosFila[0]}" readonly/></td>
-            <td class='text-right'>${item_doc}</td>
-            <td>${datosFila[1]}</td>
-            <td>${datosFila[2]}</td>
-            <td class='text-center'>${datosFila[3]}</td>
-            <td class='text-center'>${datosFila[5]}</td>
-            <td class='text-center'>${datosFila[6]}</td>
-            <td class='text-center'><input type="text" id="id_moneda_doc${item_doc}" name="id_moneda_doc[]" class="form-control text-center text-xs" value="${datosFila[7]}" readonly/></td>
-            <td class='text-right'>${datosFila[8]}</td>
-            <td class='text-right'>${datosFila[9]}</td>
-			<td class='text-right'><input type="text" id="sal_doc${item_doc}" name="sal_doc[]" class="form-control text-right text-xs sal_doc" readonly value="${datosFila[10]}"/></td>
-            <td class='text-right'><input type="text" id="mon_can${item_doc}" name="mon_can[]" class="form-control text-right text-xs fila-input" readonly/></td>
-			<td class='text-right'><input type="text" id="mon_ret${item_doc}" name="mon_ret[]" class="form-control text-right text-xs fila-input-ret" readonly></td>
-            <td class='text-right'><input type="text" id="num_ret${item_doc}" name="num_ret[]" class="form-control text-right text-xs fila-input-num" value="" readonly/></td>
-            <td class="text-center"><input type="checkbox" name="id_check[]" class="form-check-input check-row-cxc" data-input-id="mon_can${item_doc}" data-input-ret="mon_ret${item_doc}" data-input-num="num_ret${item_doc}"/> <button type="button" class="btn btn-danger btn-xs borrar_doc" title="Eliminar item"><i class="fa fa-trash"></i></button></td>`);
-		table.row.add(htmlTags).draw(true);
+|		<td class='text-right'><input type="text" id="id_cot${datosFila[0]}" name="id_cot[]" class="form-control text-right text-xs rid_cot" value="${datosFila[0]}" readonly/></td>
+		<td class='text-right'>${item_doc}</td>
+		<td>${datosFila[1]}</td>
+		<td>${datosFila[2]}</td>
+		<td class='text-center'>${datosFila[3]}</td>
+		<td class='text-center'>${datosFila[5]}</td>
+		<td class='text-center'>${datosFila[6]}</td>
+		<td class='text-center'><input type="text" id="id_moneda_doc${item_doc}" name="id_moneda_doc[]" class="form-control text-center text-xs" value="${datosFila[7]}" readonly/></td>
+		<td class='text-right'>${datosFila[8]}</td>
+		<td class='text-right'>${datosFila[9]}</td>
+		<td class='text-right'><input type="text" id="sal_doc${item_doc}" name="sal_doc[]" class="form-control text-right text-xs sal_doc" readonly value="${datosFila[10]}"/></td>
+		<td class='text-right'><input type="text" id="mon_can${item_doc}" name="mon_can[]" class="form-control text-right text-xs fila-input" readonly/></td>
+		<td class='text-right'><input type="text" id="mon_ret${item_doc}" name="mon_ret[]" class="form-control text-right text-xs fila-input-ret" readonly></td>
+		<td class='text-right'><input type="text" id="num_ret${item_doc}" name="num_ret[]" class="form-control text-right text-xs fila-input-num" value="" readonly/></td>
+		<td class="text-center"><input type="checkbox" name="id_check[]" class="form-check-input check-row-cxc" data-input-id="mon_can${item_doc}" data-input-ret="mon_ret${item_doc}" data-input-num="num_ret${item_doc}"/> <button type="button" class="btn btn-danger btn-xs borrar_doc" title="Eliminar item"><i class="fa fa-trash"></i></button></td>`);
+	table.row.add(htmlTags).draw(true);
 	//$("#tbody").append(htmlTags);
 	$("#item").val(item_doc);
 	$("#modal_doc_pen_cxc").modal("hide");

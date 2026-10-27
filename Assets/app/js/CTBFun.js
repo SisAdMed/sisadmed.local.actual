@@ -1,4 +1,138 @@
 //Contabilidad
+let table;
+tabla = "tblAsiento"
+$(document).ready(function(){
+	table = $("#tblAsiento").DataTable({
+        paging: false,
+        info: false,
+        searching: false,
+        ordering: false,
+        order: [],
+        autoWidth: false, // ⚠️ Vital para que respete los anchos asignados abajo
+        columns: [
+            // 01.- Item correlativo (Ancho fijo pequeño)
+            { data: null, title: "Item", className: 'text-center text-xs dt-item align-middle', width: "50px", orderable: false, searchable: false,
+                render: function(data, type, row, meta){
+                    return meta.row + 1;
+                }
+            },
+            // 02.- Cuenta contable
+            { data: null, title: "Cuenta Contable", width: "25%",
+                render: function(data, type, row, meta){
+                    var item = meta.row + 1;
+                    var id = row.id_cue || '';
+                    var nom = row.nombre_cta || '';
+                    return `
+                    <input type="hidden" name="id_cue[]" id="id_cue${item}" value="${id}">
+                    <div class="input-group input-group-xs">
+                        <input type="text" class="form-control text-xs" id="nom_ctb${item}" name="nom_ctb[]" value="${nom}" title="${nom}" readonly required>
+                        <div class="input-group-append">
+                            <span class="input-group-text">
+                                <a href="#" class="btn-buscar-ctbcue" data-item="${item}" data-id_cue="${id}" data-toggle="modal" data-target="#modal-CuentasCtb" title="Buscar cuentas"><i class="fas fa-search text-xs"></i></a>
+                            </span>
+                        </div>
+                    </div>`;
+                }
+            }, 
+            // 03.- Auxiliar contable
+            { data: null, title: "Auxiliar Contable", width: "22%",
+                render: function( data, type, row, meta){
+                    var item = meta.row + 1;
+                    var id_aux = row.id_aux || '';
+                    var nom = row.nombre_aux || '';
+                    var ocultar = (row.id_aux == 0 || !row.id_aux) ? 'hidden' : '';
+                    return `
+                    <input type="hidden" name="id_aux[]" id="id_aux${item}" class="text-xs" value="${id_aux}">
+                    <div class="input-group input-group-xs">
+                        <input type="text" class="form-control text-xs" id="nom_aux${item}" name="nom_aux[]" value="${nom}" title="${nom}" readonly>
+                        <div class="input-group-append">
+                            <span id="div_aux${item}" class="input-group-text" ${ocultar}>
+                                <a href="#" data-item="${item}" data-id_aux="${id_aux}" data-toggle="modal" data-target="#modal-AuxiliaresCtb" title="Buscar auxiliares"><i class="fas fa-search text-xs"></i></a>
+                            </span>
+                        </div>
+                    </div>`;
+                }
+            },
+            // 04.- Descripcion de detalle
+            { data: null, title: 'Descripción', width: "23%",
+                render: function(data, type, row, meta){
+                    var item = meta.row + 1; // 💡 Declaramos item para evitar errores
+                    var observacion = row.det_observa || '';
+                    return `<input type="text" name="descrip_deta[]" id="descrip_deta${item}" class="form-control text-xs" value="${observacion}">`;
+                }
+            },
+            // 05.- Tipo
+            { data: null, title: "Tipo", width: "8%",
+                render: function(data, type, row, meta){
+                    var item = meta.row + 1;
+					 // Determinamos si ya viene un valor guardado (por si la fila tenía datos)
+                    var seleccionD = (data === 'D') ? 'selected' : '';
+                    var seleccionH = (data === 'H') ? 'selected' : '';
+					// Nota: El select se renderiza vacío; abajo te muestro cómo poblarlo
+                    return `<select
+					select name="tipo[]" id="tipo${item}" class="form-control tipo text-xs" data-item="${item}" required>
+						<option value="">Seleccione...</option>
+						<option value="D" ${seleccionD}>Debe</option>
+						<option value="H" ${seleccionH}>Haber</option>
+					</select>`;
+                }
+            },
+            // 06.- Monto Debe
+            { data: null, title: 'Debe', className: 'text-right', width: "10%",
+                render: function(data, type, row, meta){
+                    var item = meta.row + 1;
+                    var debe = row.mon_debe || 0;
+                    return `<input type="text" name="mon_debe[]" id="mon_debe${item}" class="form-control text-right xtotal_debe text-xs camponumero" onkeyup="total_asiento()" value="${format_number_with_dec_new(debe, 2)}">`;
+                }
+            },
+            // 07.- Monto Haber (⚠️ Corregido el name a mon_habe y el id a mon_habe)
+            { data: null, title: 'Haber', className: 'text-right', width: "10%",
+                render: function(data, type, row, meta){
+                    var item = meta.row + 1;
+                    var haber = row.mon_habe || row.mon_debe || 0; // Ajusta según tu propiedad de haber
+                    return `<input type="text" name="mon_habe[]" id="mon_habe${item}" class="form-control text-right xtotal_haber text-xs camponumero" onkeyup="total_asiento()" value="${format_number_with_dec_new(haber, 2)}">`;
+                }
+            },
+            // 08. Acciones (Ancho fijo pequeño para los botones)
+            { data: null, title: "Acciones", className: "text-center align-middle", width: "60px", orderable: false, searchable: false,
+                render: function (data, type, row, meta) {
+                    return `
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-danger btn-xs btn-borrar text-xs" title="Eliminar item"><i class="far fa-trash-alt"></i></button>                        
+                    </div>`;
+                }
+            }
+        ],
+        language: {
+            url: `${base_url}/Assets/json/es-ES.json`,
+        },
+        createdRow: function (row, data, dataIndex) {
+            $(row).attr('data-item', dataIndex + 1);            
+        }
+    });
+	$("#item").val(item);	
+	$("#btnAgregate").on('click', function(){
+		//Estrutura limpia del objeto
+		var nuevoRegistro = {
+			id_cue: '',
+			nom_ctb: '',
+			id_aux: '',
+			nombre_aux: '',
+			descrip_deta: '',
+			tipo: '',
+			mon_debe: '0,00',
+			mon_habe: '0,00'
+
+		};
+		// Agregamos a la API y redibujamos la tabla
+		table.row.add(nuevoRegistro).draw(false);			
+	});
+	$("#tblAsiento tbody").on('click', '.btn-buscar-ctbcue', function(e) {
+		e.preventDefault();
+		var itemSeleccionadoTarget = $(this).attr('data-item') || $(this).closest('tr').attr('data-item');
+		$('#modal-CuentasCtb').data('item-target', itemSeleccionadoTarget);
+	})
+});
 //Auxiliares Contables
 function initAuxilirCTB() {
 	const title = "Contabilidad - Auxiliares Contables ";
@@ -21,7 +155,7 @@ function initAuxilirCTB() {
 				return t_menu;
 			},
 		},
-		{ data: "id_aux", title: "Id", className: "text-right" },
+		{ data: "id_aux", title: "Id", className: "text-right", visible: false },
 		{ data: "cod_aux", title: "Código" },
 		{ data: "nombre_aux", title: "Nombre" },
 		{ data: "agrupa_aux", title: "Agrupa", className: "text-center" },
@@ -39,7 +173,7 @@ function initAuxilirCTB() {
 				}
 			},
 		},
-	]);
+	], '', '', 1, 'asc');
 }
 //Cuentas Contables
 function initCuentasCtb() {
@@ -60,7 +194,7 @@ function initCuentasCtb() {
 				return t_menu;
 			},
 		},
-		{ data: "id_cta", title: "Id", className: "text-right" },
+		{ data: "id_cta", title: "Id", className: "text-right", visible: false },
 		{ data: "cod_cta", title: "Código" },
 		{ data: "nombre_cta", title: "Nombre" },
 		{ data: "agrupa_cta", title: "Agrupador", className: "text-center" }, 
@@ -77,7 +211,8 @@ function initCuentasCtb() {
 				}
 			},
 		},
-	]);
+		{ data: "codigo", title: "Código", visible: false},
+	], '', '', 7, 'asc');
 }
 //Asientos Contables
 function initAsientos() {
@@ -92,14 +227,14 @@ function initAsientos() {
 				if (permisos_cre == 1 && permisos_cre == 1) {
 				t_menu += `<a type="button" class="btn btn-warning btn-xs" href="${base_url}/${origen}/edit/${row.id_comp}"><i class="fa fa-edit"></i></a>     `;
 				}
-				if (permisos_del == 1 && row.ori_comp == "CTB") {
+				if (permisos_del == 1 && row.ori_comp == "CTB" && row.borrable == 0) {
 				t_menu += `<button id="Data" data-id="${row.id_comp}" data-name="${row.nombre_tipcom}" data-code = "${row.num_comp}" type="button" class="btn btn-danger btn-xs btn-delete-index"><i class="fa fa-trash"></i></button>`;
 					}
 					t_menu += `     <a type="button" class="btn btn-primary btn-xs" href="${base_url}/Asientos/print/${row.id_comp}" target="_blank" title='Imprimir asiento'><i class="fa fa-print"></i> </a>`;
 				return t_menu;
 			}
 		},
-		{ data: "id_comp", title: "Id", className: "text-right"},
+		{ data: "id_comp", title: "Id", className: "text-right", visible: false},
 		{ data: "nombre_emp", title: "Empresa" },
 		{ data: "nombre_tipcom", title: "Tipo Cbte." },
 		{ data: "num_comp", title: "Nro. Cbte.", className: "text-right" },

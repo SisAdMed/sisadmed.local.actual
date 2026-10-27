@@ -34,7 +34,7 @@ function eliminarBtn(element) {
 //Funcion para borrar
 async function borrar(datos){
 	try{
-		let url =  `${base_url}/MotivoCambio/destroy`;
+		url =  `${base_url}/MotivoCambio/destroy`;
 		let repuesta = await fetch(url, {
 			method:"POST",
 			body: datos,

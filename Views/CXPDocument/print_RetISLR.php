@@ -164,7 +164,7 @@ for($i= 0; $i<count($r);$i++){
     }else{
         $pdf->cell(20,7, html_entity_decode(formatFecha($r[$i]->fecha_comp)), 'B', 0, 'C');
     }
-    $pdf->cell(15,7, html_entity_decode('00-' . str_pad($r[$i]->num_control, 8,'0', STR_PAD_LEFT)), 'B', 0, 'C');
+    $pdf->cell(15,7, html_entity_decode('00-' . $r[$i]->num_control), 'B', 0, 'C');
     $pdf->cell(25,7, html_entity_decode(($r[$i]->id_retislr)), 'B', 0, 'C');
     $pdf->cell(25,7, number_format($r[$i]->total_monto, 2, ",", "."), 'B', 0, 'R');
     $pdf->cell(25,7, number_format($r[$i]->total_base, 2, ",", "."), 'B', 0, 'R');

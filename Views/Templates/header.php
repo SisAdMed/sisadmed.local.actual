@@ -11,7 +11,7 @@ if(isset($_SESSION['administrador']) && $_SESSION['administrator'] != 1){
 <!DOCTYPE html>
     <html lang="<?= SITE_LANG ?>" style="height: auto;">
     <head>
-        <!---<meta http-equiv="Expires" content="<?= $date_today ?>">-->
+        <meta http-equiv="Expires" content="<?= $date_today ?>">
         <meta http-equiv="Expires" content="">
         <meta http-equiv="Last-Modified" content="0">
         <meta http-equiv="Cache-Control" content="no-cache, mustrevalidate">

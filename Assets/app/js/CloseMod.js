@@ -8,16 +8,16 @@ const $progressBar = $("#progressBar");
 const $progressText = $("#progressText");
 const $btnIniciar = $("#btn_close");
 $(document).ready(function () {
-	  $("form#my_form").validate({
-       rules:{
-            id_emp: "required",
-            date_close: "required"
-        },
-        messages:{
-            id_emp: "Debe especificar una empresa",
-            date_close: "Debe especificar un Fecha de Cierre de Módulos"
-        },
-    });
+	$("form#my_form").validate({
+		rules: {
+			id_emp: "required",
+			date_close: "required"
+		},
+		messages: {
+			id_emp: "Debe especificar una empresa",
+			date_close: "Debe especificar un Fecha de Cierre de Módulos"
+		},
+	});
 	if (!id_emp) {
 		listar_empresas();
 	}
@@ -34,7 +34,7 @@ $btnIniciar.on("click", function (e) {
 	// 1. Iniciar el proceso en el backend
 	if (ori == 'A') {
 		URL_INICIO = `${base_url}/CloseMod/open_modules`;
-	} 
+	}
 	$.ajax({
 		url: URL_INICIO,
 		type: "POST",
@@ -44,7 +44,7 @@ $btnIniciar.on("click", function (e) {
 			if (response.status === "INICIADO") {
 				//console.log("Proceso iniciado en el servidor. Comenzando polling...");
 				// 2. Iniciar la consulta periódica (polling)				
-				iniciarPollingProgreso();	
+				iniciarPollingProgreso();
 			} else {
 				$progressText.text("Error al iniciar el proceso.");
 				$btnIniciar.prop("disabled", false).text("Iniciar Cierre");
@@ -55,7 +55,7 @@ $btnIniciar.on("click", function (e) {
 			$btnIniciar.prop("disabled", false).text("Iniciar Cierre de Módulos");
 		},
 	});
-	
+
 });
 $("#id_emp").on("change", async function (e) {
 	e.preventDefault();
@@ -67,7 +67,7 @@ $("#id_emp").on("change", async function (e) {
 			fec_ctb = new Date(dat_emp["fec_ctb"]);
 			fec_ctb.setDate(fec_ctb.getDate() + 1);
 			fec_ctb = getLastDateofMonth(fec_ctb);
-			fec_fin = fec_ctb;				
+			fec_fin = fec_ctb;
 			$("#date_close").val(fec_ctb);
 		} else {
 			fec_ini = dat_emp["fec_ctb"];
@@ -75,7 +75,7 @@ $("#id_emp").on("change", async function (e) {
 			fec_mes_ant = new Date(fechaActual);
 			fec_mes_ant.setMonth(fec_mes_ant.getMonth() - 1);
 			fec_ctb = getLastDateofMonth(fec_mes_ant);
-			fec_fin = fec_ctb;	
+			fec_fin = fec_ctb;
 			$("#date_close").val(fec_fin);
 		}
 	} else {
@@ -114,22 +114,23 @@ function iniciarPollingProgreso() {
 					//Ajax para actualizar la fecha de cierre
 					console.log('id_emp', id_emp);
 					console.log('fec_fin', fec_fin);
-					
-					
 					$.ajax({
 						url: url,
 						method: 'POST',
 						dataSrc: '',
-						data: {id_emp: id_emp, fec_fin: fec_fin},
+						data: { id_emp: id_emp, fec_fin: fec_fin },
 						dataType: 'json',
-						beforeSend: function() {
+						beforeSend: function () {
 							loader.show();
 						},
-						complete: function() {
+						complete: function () {
 							loader.hide();
 						},
 						error: function (jqXHR, textStatus, errorThrown) {
 							loader.hide();
+							$progressBar.removeClass("bg-primary progress-bar-animated").addClass("bg-danger");
+							$("#progressPercent").removeClass("text-primary").addClass("text-danger");
+							$progressText.html('<i class="fas fa-times-circle mr-1 text-danger"></i> Error en el proceso.');
 							console.error("Error en la solicitud AJAX:");
 							console.error("Estado de texto:", textStatus); // Por ejemplo: "timeout", "error", "Not Found", "Internal Server Error"
 							console.error("Error lanzado:", errorThrown); // Mensaje de error detallado del servidor
@@ -137,23 +138,27 @@ function iniciarPollingProgreso() {
 							console.error("Respuesta del servidor:", jqXHR.responseText); // Contenido de la respuesta del servidor
 						},
 						success: function (data) {
+							$progressBar.removeClass("bg-primary progress-bar-animated").addClass("bg-success");
+							$("#progressPercent").removeClass("text-primary").addClass("text-success");
+							$progressText.html('<i class="fas fa-check-circle mr-1 text-success"></i> ¡Proceso completado con éxito!');
 							Swal.fire({
 								title: "Proceso Finalizado!",
 								text: "Proceso de cierre de modulos finalizado satisfactoriamente!",
 								icon: "success",
 							}).then((result) => {
 								if (result.isConfirmed) {
-									window.location.href = `${base_url}/CloseMod?ori=ori`;									
+									//window.location.href = `${base_url}/CloseMod?ori=${ori}`;
 								}
 							});;
 						},
 					});
-					
+
 				}
 				if (data.status === "ERROR") {
 					clearInterval(intervaloProgreso);
-					$progressBar.removeClass("bg-primary").addClass("bg-danger");
-					$btnIniciar.prop("disabled", false).text("Iniciar Cierre de Módulos");
+					$progressBar.removeClass("bg-primary progress-bar-animated").addClass("bg-danger");
+					$("#progressPercent").removeClass("text-primary").addClass("text-danger");
+					$progressText.html('<i class="fas fa-times-circle mr-1 text-danger"></i> Error en el proceso.');
 					Swal.fire({
 						title: "Proceso con error!",
 						text: "Proceso de cierre de modulos terminado en error, consulta con el Administrador del sistema!",
@@ -166,5 +171,6 @@ function iniciarPollingProgreso() {
 }
 function actualizarBarra(progreso, mensaje) {
 	$progressBar.css("width", progreso + "%").attr("aria-valuenow", progreso);
-	$progressText.html(mensaje + " (" + progreso + "%)");
+	$("#progressPercent").text(progreso + "%"); // Actualiza el texto numérico flotante
+	$progressText.html(`<i class="fas fa-spinner fa-spin mr-1 text-primary"></i> ${mensaje}`);
 }
