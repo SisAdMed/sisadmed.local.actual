@@ -4,7 +4,7 @@
     $filemame = $r[0]->nombre_emp . ' - '. $r[0]->cod_bantmo . ' - '. $r[0]->nom_bantmo . ' - ' . $r[0]->num_banmov . '.pdf';
     $tman_letra = 7;
     class PDF extends FPDF{
-        public $ruta_logo, $nombre_emp, $rif_empresa, $cod_bantmo, $nom_bantmo, $num_banmov, $nombre_banco, $cuenta_bancue, $fecha_comp, $codigo_moneda, $tasa_cambio, $des_banmov;
+        public $ruta_logo, $nombre_emp, $rif_empresa, $cod_bantmo, $nom_bantmo, $num_banmov, $nombre_banco, $cuenta_bancue, $fecha_comp, $codigo_moneda, $tasa_cambio, $des_banmov, $id_moneda;
         public function __construct($r){
             parent::__construct();
             $this->ruta_logo = IMG .'companies/' . $r[0]->logo;
@@ -19,6 +19,7 @@
             $this->codigo_moneda = $r[0]->codigo_moneda;
             $this->tasa_cambio = $r[0]->tasa_cambio;
             $this->des_banmov = $r[0]->des_banmov;
+            $this->id_moneda = $r[0]->id_moneda;            
         }
         function Header(){
             //Logo
@@ -67,13 +68,19 @@
     $rows = 0;
     $total = 0;
     $pdf->Ln(2);    
-    $total_rows = count($r);
+    $cia = to_obj(BanMovimModel::query("SELECT id_moneda FROM f0011 WHERE id_emp = {$r[0]->id_emp} LIMIT 1"));        
+    $total_rows = count($r);    
     for ($i = 0; $i < count($r); $i++) {
         $pdf->Cell(5, 3, $r[$i]->item, 0, 0, 'C');
         $cadena = iconv("UTF-8", "ISO-8859-1", html_entity_decode($r[$i]->nom_bancon));
         $pdf->cell(15, 3, $r[$i]->cod_bancon, 0, 0,'L');
         $pdf->cell(10, 3, ($cadena), 0, 0,'L');
-        $monto = (!empty($r[$i]->monto_for) && $r[$i]->monto_for > 0) ? $r[$i]->monto_for : $r[$i]->monto_nac;
+        //$monto = (!empty($r[$i]->monto_for) && $r[$i]->monto_for > 0) ? $r[$i]->monto_for : $r[$i]->monto_nac;      
+        if($r[0]->id_moneda == $cia[0]->id_moneda){
+            $monto = $r[$i]->monto_nac;
+        }else{
+            $monto = $r[$i]->monto_for;
+        }
         if($r[$i]->cod_aux){            
             $pdf->Cell(35);
             $pdf->cell(80, 3, htmlentities($r[$i]->cod_aux . ' - ' . $r[$i]->nombre_aux), 0, 0,'L');
@@ -131,7 +138,7 @@
             $cadena = iconv("UTF-8", "ISO-8859-1", 'Retención');
             $pdf->Cell(20, 3, $cadena, 0, 0, 'R');
             $cadena = iconv("UTF-8", "ISO-8859-1", 'Número Retención');
-            $pdf->Cell(20, 3, $cadena, 0, 1, 'R');
+            $pdf->Cell(30, 3, $cadena, 0, 1, 'R');
         }
         $pdf->SetFont('Arial', '', $tman_letra);
         $pdf->Ln(2);
@@ -150,7 +157,7 @@
             if($efe_bantmo == 'C'){
                 $pdf->Cell(20, 3, number_format($doc_can[$i]['mon_ret'] ?? 0 ,2,",", "."), 0, 0, 'R');
                 $pdf->SetFont('Arial', '', $tman_letra);
-                $pdf->Cell(20, 3, $doc_can[$i]['num_ret'], 0, 1, 'R');
+                $pdf->Cell(30, 3, $doc_can[$i]['num_ret'], 0, 1, 'R');
                 //Acumulador
                 $mon_ret +=$doc_can[$i]['mon_ret'] ?? 0;
             }else{

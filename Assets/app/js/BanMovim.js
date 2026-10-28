@@ -596,17 +596,28 @@ function show_row(id) {
 						var detalleLimpio = datcxc.map(function (item, index) {
 							// Capturamos el valor dinámico actual del input de cantidad	
 							// Tomamos directamente el monto_doc que ya viene convertido y guardado desde f30081
+							console.log(item);
 							var montoConvertido = parseFloat(item.monto_doc);
 							var saldoConvertido = parseFloat(item.sal_doc);
-							if (id_moneda != item.id_moneda) {
-								mon_doc_dom = montoConvertido * item.tasa_cambio;
-								mon_doc_for = montoConvertido * item.tasa_cambio;
-								sal_doc_dom = saldoConvertido * item.tasa_cambio;
-								sal_doc_for = saldoConvertido * item.tasa_cambio;
-							}
-							var saldoConvertido = parseFloat(item.sal_doc);
-							var montoCancelar = parseFloat(item.mont_doc_dom);
-							var monRetenido = parseFloat(item.mon_ret_dom);
+							if(id_moneda == item.id_moneda){
+								mon_doc_dom = parseFloat(item.mon_doc_dom);
+								mon_doc_for = parseFloat(item.mon_doc_for);
+								sal_doc_dom = parseFloat(item.sal_doc_dom);
+								sal_doc_for = parseFloat(item.sal_doc_for);
+								mont_doc_dom = parseFloat(item.mont_doc_dom);
+								mont_doc_for = parseFloat(item.mont_doc_for);
+								mon_ret_dom = parseFloat(item.mon_ret_dom);
+								mon_ret_for = parseFloat(item.mon_ret_for);
+							}else{
+								mon_doc_dom = parseFloat(item.mon_doc_for);
+								mon_doc_for = parseFloat(item.mon_doc_dom);
+								sal_doc_dom = parseFloat(item.sal_doc_for);
+								sal_doc_for = parseFloat(item.sal_doc_dom);
+								mont_doc_dom = parseFloat(item.mont_doc_for);
+								mont_doc_for = parseFloat(item.mont_doc_dom);
+								mon_ret_dom = parseFloat(item.mon_ret_for);
+								mon_ret_for = parseFloat(item.mon_ret_dom);
+							}							
 							total_mov += monto;
 							return {
 								id_doc: item.id_cot,
@@ -620,14 +631,15 @@ function show_row(id) {
 								id_moneda: item.id_moneda,
 								tasa_cambio: item.tasa_cambio,
 								// Asignamos el valor ya convertido a las variables domésticas para que la tabla 
-								// los muestre siempre en la moneda principal del movimiento sin alterarse
+								// los muestre siempre en la moneda principal del movimiento sin alterarse								
 								mon_doc_dom: mon_doc_dom,
-								mon_doc_for: mon_doc_for,
-								sal_doc_dom: saldoConvertido,
-								sal_doc_for: saldoConvertido,
-								mon_can_dom: montoCancelar,
-								mon_can_for: montoCancelar,
-								mon_ret_dom: monRetenido,
+								mon_doc_for: mon_doc_for,								
+								sal_doc_dom: sal_doc_dom,
+								sal_doc_for: sal_doc_for,
+								mon_can_dom: mont_doc_dom,
+								mon_can_for: mont_doc_for,
+								mon_ret_dom: mon_ret_dom,
+								mon_ret_for: mon_ret_for,
 								num_ret: item.num_ret || ''
 							}
 						});
@@ -641,18 +653,18 @@ function show_row(id) {
 			total_mov = 0;
 			var detalleLimpio = data.map(function (item, index) {
 				// Capturamos el valor dinámico actual del input de cantidad	
-				if (tasa_cambio == 1) {
+				//if (tasa_cambio == 1) {
 					monto = item.monto_nac
-				} else {
-					monto = item.monto_for
-				}
+				//} else {
+					//monto = item.monto_for
+				//}
 				total_mov += monto;
 				return {
 					id_bancon: item.id_bancon,
 					nom_bancon: item.nom_bancon,
 					id_aux: item.id_aux,
 					nombre_aux: item.nom_aux,
-					monto_nac: monto,
+					monto_nac: item.monto_nac,
 				}
 			});
 			table.clear();

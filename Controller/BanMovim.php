@@ -191,8 +191,8 @@ class BanMovim extends Controller{
                 // Arreglo maestro que contendrá todos los movimientos (Encabezado + Detalles)
                 $movimCXC = [];                
                 foreach ($agrupadoPorTasa as $claveUnica => $movim) {
-                    $encacxp = [];
-                    $detacxp = [];
+                    $encacxc = [];
+                    $detacxC = [];
                     // Separamos la clave si necesitas recuperar la moneda y la tasa por separado                    
                     list($idMoneda, $tasaCambio) = explode('_', $claveUnica);
                     $movem_amount = 0;
@@ -200,7 +200,7 @@ class BanMovim extends Controller{
                         $tasaDoc = floatval($det->tasa_cambio ?? 0);
                         // Si la tasa del banco es igual a la tasa del documento, se deja el monto igual.
                         // De lo contrario, se divide el monto entre la tasa del documento (validando que no sea cero).
-                        if ($val_tasa == $tasaDoc) {
+                        if ($_POST['id_moneda'] == $det->id_moneda) {
                             $movem_amount += $det->monto;
                         } else {
                             $movem_amount += ($tasaDoc > 0) ? ($det->monto / $tasaDoc) : $det->monto;
@@ -224,14 +224,16 @@ class BanMovim extends Controller{
                         'movem_amount_for' => $movem_amount,
                     ];                        
                     $detacxc = [];               
-                    foreach ($movim as $det) {
-                        $tasaDoc = floatval($det->tasa_cambio ?? 0);
+                    foreach ($movim as $det) {                        
+                        $tasaDoc = floatval($det->tasa_cambio ?? 0);                        
                         // Si la tasa del banco es igual a la tasa del documento, se deja el monto igual.
                         // De lo contrario, se divide el monto entre la tasa del documento (validando que no sea cero).
-                        if ($val_tasa == $tasaDoc) {
-                            $montoDoc = $det->monto;
+                        if ($_POST['id_moneda'] == $det->id_moneda) {
+                            $montoDoc = $det->monto;  
+                            $monRet = $det->mon_ret;
                         } else {
                             $montoDoc = ($tasaDoc > 0) ? ($det->monto / $tasaDoc) : $det->monto;
+                            $monRet = $det->mon_ret / $tasaDoc;
                         }
                         $detacxc[] = [
                             'movem_id' => '',
@@ -242,8 +244,8 @@ class BanMovim extends Controller{
                             'monto_doc_for' => $montoDoc,
                             'create_user' => $_SESSION['id_user'],
                             'create_date' => getAuditoria(),
-                            'mon_ret' => $det->mon_ret / $det->tasa_cambio,
-                            'monto_ret_for' => $det->mon_ret / $det->tasa_cambio,
+                            'mon_ret' => $monRet,
+                            'monto_ret_for' => $det->mon_ret,
                             'num_ret' => $det->num_ret
                         ];                        
                     }

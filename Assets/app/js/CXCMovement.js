@@ -678,7 +678,3 @@ $("#tblIndexMain").on("click", ".btn-delete", function () {
 		}
 	});
 });
-//Función para recargar el datatable
-$(".refresh-button").on("click", function () {
-	tableIndex.ajax.reload(null, false);
-});

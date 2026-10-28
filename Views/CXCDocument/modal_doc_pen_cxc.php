@@ -116,7 +116,7 @@
                             data: null,
                             className: "text-right",
                             title: "Monto Doc.",
-                            render: function(data, type, row) {
+                            render: function(data, type, row) {                                
                                 if (id_moneda == id_moneda_cia) {
                                     return `${format_number_with_dec_new(row.mon_doc_dom, 2)}`;
                                 } else {
@@ -161,40 +161,58 @@
         });
     }
 
-    function validarComprobantesRetencion() {
-        let valido = true;
-        let mensajeError = "";
+   function validarComprobantesRetencion() {
+    console.log('entre a validarComprobantesRetencion');
+    let valido = true;
+    let mensajeError = "";
 
-        jQuery('#tblSeatDetail_cxc tbody tr').each(function() {
-            let tr = jQuery(this);
-            let inputRet = tr.find('input[data-campo="mon_ret"]');
-            let inputComp = tr.find('input[data-campo="num_ret"]');
+    // Seleccionamos directamente todas las filas del tbody de la tabla
+    let filas = jQuery('#tblSeatDetail_cxc tbody tr');
+    console.log('Cantidad de filas encontradas en la tabla CXC:', filas.length);
 
-            let montoRetVal = parseFloat(inputRet.val().replace(/\./g, '').replace(',', '.')) || 0;
-            let numComprobante = inputComp.val() ? inputComp.val().trim() : "";
+    filas.each(function(index) {
+        let tr = jQuery(this);
+        let inputRet = tr.find('input[data-campo="mon_ret"]');
+        let inputComp = tr.find('input[data-campo="num_ret"]');
 
-            if (montoRetVal > 0) {
-                if (!/^\d{20}$/.test(numComprobante)) {
-                    valido = false;
-                    inputComp.addClass('is-invalid');
-                    mensajeError = "Hay documentos con Retención de IVA cuyo número de comprobante no es válido. Debe contener exactamente 20 dígitos numéricos.";
-                }
-            }
-        });
-
-        if (!valido) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Comprobante requerido',
-                text: mensajeError,
-                confirmButtonText: 'Aceptar'
-            });
+        // Si por alguna razón no encuentra los inputs en esta fila, saltamos a la siguiente
+        if (inputRet.length === 0 || inputComp.length === 0) {
+            return true; // equivale al continue en jQuery each
         }
 
-        return valido;
+        let rawRet = inputRet.val() || "0";
+        let montoRetVal = parseFloat(rawRet.toString().replace(/\./g, '').replace(',', '.')) || 0;
+        let numComprobante = inputComp.val() ? inputComp.val().trim() : "";
+
+        console.log(`Fila ${index} -> Monto Retención:`, montoRetVal, '| Comprobante:', numComprovenre = numComprobante);
+
+        if (montoRetVal != 0) {
+            console.log('entre-001: El monto de retención es mayor a 0');
+            
+            // Validar exactamente 20 dígitos numéricos
+            if (!/^\d{14}$/.test(numComprobante)) {
+                valido = false;
+                inputComp.addClass('is-invalid');
+                mensajeError = "Hay documentos con Retención de IVA cuyo número de comprobante no es válido. Debe contener exactamente 14 dígitos numéricos.";
+            } else {
+                inputComp.removeClass('is-invalid');
+            }
+        }
+    });
+
+    if (!valido) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Comprobante requerido',
+            text: mensajeError,
+            confirmButtonText: 'Aceptar'
+        });
     }
 
-    function sincronizarDetalleMovimientoBanco_cxc() {        
+    return valido;
+}
+
+    function sincronizarDetalleMovimientoBanco_cxc() {         
         if (!id_emp) return;
 
         // 1. Obtener el total general actual de la pestaña de Cuentas por Cobrar
@@ -241,7 +259,7 @@
         });
 
         // 4. Agregar concepto principal si no existe y el monto es mayor a 0
-        if (!encontrado && totalCXPNum > 0) {
+        if (!encontrado && totalCXPNum != 0) {
             let nuevaFilaDetalle = {
                 id_bancon: idConceptoBuscado,
                 nom_bancon: window.conceptoProveedorDefault['nom_con'],
@@ -253,7 +271,7 @@
         }
 
         // 5. Agregar concepto de retención si no existe y el monto es mayor a 0
-        if (!encontradoRet && totalCXPNumRet > 0) {
+        if (!encontradoRet && totalCXPNumRet != 0) {
             let nuevaFilaDetalleRet = {
                 id_bancon: idConceptoBuscadoRet,
                 nom_bancon: window.conceptoProveedorDefault['nom_con_ret'],
@@ -450,7 +468,7 @@
                         var monto = row.mon_ret_dom
                         id_moneda = $("#id_moneda").val();
                         if (row.id_moneda_cia != id_moneda) {
-                            monto = row.mon_ret_dom / row.tasa_cambio;
+                            monto = row.mon_ret_for ;
                         }
                         return `<input type="text" name="monto[]" id="monto${item}" value="${format_number_with_dec_new(monto, 2)}" class="form-control-sm text-right text-xs camponumero" data-campo="mon_ret" style="height: 26px; padding: 2px 6px;">`;
                     }
@@ -572,7 +590,7 @@
                     }
                 }
             });
-            // Pintamos el total en el footer de CXP
+            // Pintamos el total en el footer de CXC
             jQuery('#total_monto_cancelar').text(format_number_with_dec_new(totalCancelar, 2));
             // 2. Cálculo de Retenciones
             var totalRetenido = 0;
