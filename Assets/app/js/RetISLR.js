@@ -49,6 +49,10 @@ $(document).ready(function () {
         } else {
             dat_form_new();
         }
+        //Para el reporte
+        listar_empresas(0);
+        $("#fec_ini").val(getFirstDateofMonth());
+        $("#fec_ini").trigger('change');
     }
     /**Eliminar un registro
      * Eliminar un registro mientras no tenga movimientos en los Concpetos de CXP
@@ -178,6 +182,7 @@ $(document).ready(function () {
         });
     });
 })
+listar_empresas();
 /**Nuevo registro */
 function dat_form_new() {
     listar_status(1);
@@ -237,6 +242,82 @@ function show_row(id) {
             $("#code_seniat").val(data["code_seniat"]);
             status = data["status"];
             listar_status(status);
+        }
+    });
+}
+function report_retislr(e){    
+     //Validar que se haya seleccionado una empresa
+    let id = e.dataset.id;
+    if( validarcampos()){
+       generate_report(id);
+    }
+}
+//Validar los campos del formulario
+function validarcampos(){
+    id_emp = $("#id_emp").val();
+    if(!id_emp){
+        Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Debe indicar una empresa para generar el reporte",
+            didClose: () => { $("#id_emp").focus(); }
+          });
+        return false;
+    }
+    //Validar que se haya seleccionado una fecha de inicio
+    fec_ini = $("#fec_ini").val();
+    if(!fec_ini){
+        Swal.fire({
+            icon: "error",
+            title: "Error...",
+            text: "Debe indicar una fecha de inicio para generar el reporte",
+            didClose: () => { $("#fec_ini").focus(); }
+          });
+        return false;
+    }
+    //Validar que se haya seleccionado una fecha de fin
+    fec_fin = $("#fec_fin").val();
+    if(!fec_fin){
+        Swal.fire({
+            icon: "error",
+            title: "Error...",
+            text: "Debe indicar una fecha de corte para generar el reporte",
+            didClose: () => { $("#fec_fin").focus(); }
+          });
+        return false;
+    }
+    //Validar que la fecha final no sea menor a la fecha inciial
+    if(fec_fin < fec_ini){
+        Swal.fire({
+            icon: "error",
+            title: "Error...",
+            text: "Fecha final no puede ser menor a la fecha incial",
+            didClose: () => { $("#fec_fin").focus(); }
+          });
+        return false;
+    }
+    return true;
+}
+function generate_report(id){
+    //Reporte en Excel
+    id_emp = $("#id_emp").val();
+    nom_empresa = $("#id_emp option:selected").text();
+    fec_ini = $("#fec_ini").val();
+    fec_fin = $("#fec_fin").val();
+    fecha_ini = fec_ini.split('-');
+    fecha_fin = fec_fin.split('-');
+    Swal.fire({
+        icon: 'question',
+        title: "¿Está seguro que desea generar el Reporte de Retención de I.S.L.R. de la empresa " +  nom_empresa +  " correspondiente al período del " + fecha_ini[2] + '/' + fecha_ini[1] + '/' + fecha_ini[0] + "  al " + fecha_fin[2] + '/' + fecha_fin[1] + '/' + fecha_fin[0] + " en " + id + "?",
+        showCancelButton: true,
+        confirmButtonText: "Imprimir",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if(id=="excel"){
+                window.open(`${base_url}/RetISLR/report_retislr?id_emp=` + id_emp + `&fec_ini=` + fec_ini + `&fec_fin=` + fec_fin, '_blank');
+            }else if(id=="xml"){
+                window.open(`${base_url}/RetISLR/report_retislr_xml?id_emp=` + id_emp + `&fec_ini=` + fec_ini + `&fec_fin=` + fec_fin, '_blank');
+            }
         }
     });
 }

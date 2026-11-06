@@ -362,7 +362,7 @@ class CXPDocument extends Controller{
                 $tencontre = true;
                 if($especial_contrib == "S" && $sub_mon_iva != 0 && $id_retiva != ""){
                     $config_cxp = CXPDocumentModel::config_cxp($id_emp);
-                    if(empty($id)){
+                    if(empty($_POST['id'])){
                         $num_ret = $config_cxp["con_ret_iva"];
                     }else{
                         $con_retiva = CXPDocumentModel::con_retiva($id_det_doc, "CXP");
@@ -402,7 +402,7 @@ class CXPDocument extends Controller{
                         $modo => $_SESSION['id_user']
                     ];
                     //Guardar Retencion Retención de IVA
-                    if(empty($id)){
+                    if(empty($_POST['id'])){
                         $r = CXPDocumentModel::save_retiva($data);
                         //Creado por
                         $data += [

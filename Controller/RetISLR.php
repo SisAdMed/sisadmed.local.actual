@@ -97,7 +97,7 @@ class RetISLR extends Controller{
     public function index2(){
         $this->views->getView($this, 'index2', [
             'page_name' => 'Reporte Retención de I.S.L.R.',
-            'function_js' => 'RetISLR.js?v=' . SITE_VERSION,
+            'function_js' => 'RetISLR.js?v=' . SITE_VERSION,            
         ]);
     }
     public function report_retislr(){
